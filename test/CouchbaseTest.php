@@ -2,6 +2,11 @@
 require_once "Couchbase.php";
 require_once "PHPUnit/Framework/TestCase.php";
 
+/**
+ * Couchbase test class for PHPUnit.
+ *
+ * @package Couchbase
+ */
 class CouchbaseTest extends PHPUnit_Framework_TestCase
 {
     function setUp()

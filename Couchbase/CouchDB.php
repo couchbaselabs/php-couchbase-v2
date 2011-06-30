@@ -1,6 +1,18 @@
 <?php
+/**
+ * Interface to the CouchDB HTTP API.
+ *
+ * @package Couchbase
+ */
 class Couchbase_CouchDB
 {
+
+    /**
+     * Constructor, takes a URL spcifying the CouchDB server and database.
+     *
+     * @param string $dsn URL to a CouchDB server and database
+     * @example http://localhost:5984/database
+     */
     function __construct($dsn)
     {
         $this->dsn = $dsn;
@@ -9,26 +21,59 @@ class Couchbase_CouchDB
         }
     }
 
+    /**
+     * Create a new database.
+     *
+     * @param string $name database name, must match [a-z][a-z0-9$()/_-].
+     * @return string JSON success or error message.
+     */
     function createDb($name)
     {
         return $this->send("PUT", $this->server->path);
     }
 
+    /**
+     * Delete a datbase
+     *
+     * @param string $name database name.
+     * @return string JSON success or error message.
+     */
     function deleteDb($name)
     {
         return $this->send("DELETE", $this->server->path);
     }
 
+    /**
+     * Save a document.
+     *
+     * @param string $doc JSON representation of a document.
+     * @return string JSON success or error message.
+     */
     function saveDoc($doc)
     {
         return $this->send("POST", $this->server->path, $doc);
     }
 
+
+    /**
+     * Open a document by id.
+     *
+     * @param string $id The documents's id.
+     * @return string document or error message as a JSON string.
+     */
     function open($id)
     {
         return $this->send("GET", $this->server->path . "/$id");
     }
 
+    /**
+     * Query a CouchDB view.
+     *
+     * @param string $group Design document / view group name.
+     * @param string $name View name.
+     * @param string $options Associative array of CouchDBview query options.
+     * @return string JSON result set of a CouchDB view Query.
+     */
     function view($group, $name, $options)
     {
         // TODO: keys POST
@@ -60,6 +105,14 @@ class Couchbase_CouchDB
         return $this->send("GET", $this->server->path . "/_design/$group/_view/name?$qs");
     }
 
+    /**
+     * Utility method, send an HTTP request to CouchDB
+     *
+     * @param string $method HTTP method, GET, PUT, POST, DELETE etc.
+     * @param string $url The path component of a URL.
+     * @param string $post_data Data to send with a POST or PUT request.
+     * @return string JSON response.
+     */
     function send($method, $url, $post_data = NULL)
     {
         $s = fsockopen(
