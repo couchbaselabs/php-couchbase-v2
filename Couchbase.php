@@ -20,30 +20,35 @@ class Couchbase extends Memcached
     var $query_servers = array();
     var $default_bucket_name = "default";
 
-    function __construct($id = null) {
+    function __construct($id = null)
+    {
         parent::__construct($id);
     }
 
-    function addServer($host, $port, $weight = 0) {
+    function addServer($host, $port, $weight = 0)
+    {
         $this->query_server = array("host" => $host, "port" => 5984);
         $this->couchdb = new Couchbase_CouchDB("http://$host:5984/{$this->default_bucket_name}");
         return parent::addServer($host, $port, $weight);
     }
 
-    function query($name, $options = array()) {
+    function query($name, $options = array())
+    {
         list($group, $name) = $this->_parseQueryName($name);
         $result = $this->couchdb->view($group, $name, $options);
         return new Couchbase_QueryResult($result);
     }
 
-    function addQuery($name, $query_definition) {
+    function addQuery($name, $query_definition)
+    {
         list($group, $name) = $this->_parseQueryName($name);
         $this->queries[$group][$name] = $query_definition;
         $this->_updateGroup($group);
         return true;
     }
 
-    function _updateGroup($group_name) {
+    function _updateGroup($group_name)
+    {
         $group = $this->queries[$group_name];
         $ddoc = new stdClass;
         $ddoc->_id = "_design/$group_name";
@@ -61,7 +66,8 @@ class Couchbase extends Memcached
         $this->couchdb->saveDoc($ddoc_json);
     }
 
-    function _parseQueryName($name) {
+    function _parseQueryName($name)
+    {
         $parts = split("/", $name);
         if(count($parts) == 1) {
             $group = "default";
