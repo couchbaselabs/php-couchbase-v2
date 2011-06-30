@@ -35,25 +35,25 @@ class Couchbase_CouchDB
         $qs = array();
         foreach($options AS $option => $value) {
             switch($option) {
-                case "key":
-                case "startkey":
-                case "start_key":
-                case "endkey":
-                case "end_key":
+            case "key":
+            case "startkey":
+            case "start_key":
+            case "endkey":
+            case "end_key":
                 $qs[] = "$option=" . urlencode(json_encode($value));
-                break;
+            break;
 
-                case "descending":
-                case "group":
-                case "reduce":
-                case "include_docs":
-                case "inclusive_end":
+            case "descending":
+            case "group":
+            case "reduce":
+            case "include_docs":
+            case "inclusive_end":
                 $qs[] = "$option=" . ($value?"true":"false");
-                break;
+            break;
 
-                default:
+            default:
                 $qs[] = "$option=" . urlencode($value);
-                break;
+            break;
             }
         }
         $qs = join("&", $qs);
