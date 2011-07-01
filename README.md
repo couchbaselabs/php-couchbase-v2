@@ -43,19 +43,19 @@ later.
 Once you created your queries in the admin interface, you can reference them
 by name in your code. Say you create a new query `by_name`:
 
-  <?php
-  // setup skipped
-  $cb->query("by_name");
+    <?php
+    // setup skipped
+    $cb->query("by_name");
 
 `query()` returns a `Couchbase_QueryResult` (see below) instance that you can
  use to access the query result:
 
-  <?php
-  // setup skipped
-  $result = $cb->query("by_name");
-  foreach($result->rows AS $row) {
-    echo $row->value;
-  }
+    <?php
+    // setup skipped
+    $result = $cb->query("by_name");
+    foreach($result->rows AS $row) {
+      echo $row->value;
+    }
 
 Each row conforms to the class definition `Couchbase_QueryResultRow` below,
 but note that the result row objects are not actually instances of that class,
@@ -98,9 +98,9 @@ These options give you numeric and order control over the result set:
 
 These options are for advanced queries that use a `reduce`. (TBD)
 
- - group
- - group_level
- - reduce
+ - `group`
+ - `group_level`
+ - `reduce`
 
 This last one doesn't fit in any other category:
 
