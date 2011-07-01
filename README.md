@@ -113,8 +113,8 @@ This last one doesn't fit in any other category:
 ### `Couchbase_QueryResult`
 
 
-  class Couchbase_QueryResult
-  {
+    class Couchbase_QueryResult
+    {
 
       /**
        * Number of total rows in a query result, regardless of any specified
@@ -141,7 +141,7 @@ This last one doesn't fit in any other category:
        * @var array result rows.
        */
       var $rows = array();
-  }
+    }
 
 ### `Couchbase_QueryResultRow`
 
