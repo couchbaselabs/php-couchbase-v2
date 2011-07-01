@@ -10,8 +10,13 @@
  * @author Jan Lehnardt <jan@couchbase.com>
  * @version 0.0.1
  * @package Couchbase
- * @license Apache 2.0, See LICENSE file or bottom of this file.
+ * @license Apache 2.0, See LICENSE file.
  */
+
+/*
+  TODO: versioning check to make sure we work with a couchbase-capable
+        memcached extension.
+*/
 
 /**
  * Require dependent classes
