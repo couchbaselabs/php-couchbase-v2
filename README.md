@@ -22,6 +22,13 @@ This package allows you to access Couchbase database servers from PHP.
 The Couchbase PHP client extends the existing php.net/memcached client
 interface and adds Couchbase specific features.
 
+All your code using php.net/memcached will work without changes (hooray).
+
+To use the new features, you will have to use the Couchbase database version
+2.0 or later. Please note that the Couchbase Single Server 2.0 is not
+compatible with this (TBD see also).
+
+
 ## Additions to php.net/memcached
 
 ### `touch()` Method

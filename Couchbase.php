@@ -13,11 +13,6 @@
  * @license Apache 2.0, See LICENSE file.
  */
 
-/*
-  TODO: versioning check to make sure we work with a couchbase-capable
-        memcached extension.
-*/
-
 /**
  * Require dependent classes
  */
