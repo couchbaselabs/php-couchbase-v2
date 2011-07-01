@@ -113,6 +113,16 @@ class Couchbase extends Memcached
         return true;
     }
 
+    function touch($key, $expriy = 0)
+    {
+        if(!method_exists("Memcached", "touch")) {
+            trigger_error(E_WARNING,
+                "Your memcached extension does not support the touch() method.");
+            return false;
+        }
+        return parent::touch($key, $expiry);
+    }
+
     /**
      * Utility method, updates a view group on the server
      *
