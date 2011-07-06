@@ -17,8 +17,8 @@
  * Require dependent classes
  */
 require("Couchbase/CouchDB.php");
-require("Couchbase/QueryResult.php");
-require("Couchbase/QueryDefinition.php");
+require("Couchbase/ViewResult.php");
+require("Couchbase/View.php");
 
 /**
  * Exception that gets thrown when the memcached extension is not available
@@ -86,26 +86,33 @@ class Couchbase extends Memcached
      * @param array $options Associative array of query options that are equivalent to the CouchDB query options.
      * @return Couchbase_QueryResult
      */
-    function query($name, $options = array())
+    function query($view, $options = array())
     {
-        list($group, $name) = $this->_parseQueryName($name);
-        $result = $this->couchdb->view($group, $name, $options);
-        return new Couchbase_QueryResult($result);
+        $result = $this->couchdb->view($view->ddoc_name, $view->name, $options);
+        return new Couchbase_ViewResult($result);
     }
 
     /**
-     * Helper method to allow defining a new query programatically.
+     * Helper method to allow defining a new view programatically.
      *
-     * @param string $name query name.
-     * @param Couchbase_QueryDefinition $query_definition Queyr definition.
+     * @param string $name View name.
+     * @param Couchbase_ViewDefinition $query_definition View definition.
      * @return bool
      */
-    function addQuery($name, $query_definition)
+    function addView($ddoc_name, $view_name, $view_definition)
     {
-        list($group, $name) = $this->_parseQueryName($name);
-        $this->queries[$group][$name] = $query_definition;
-        $this->_updateGroup($group);
+        $view_definition->ddoc_name = $ddoc_name;
+        $view_definition->name = $view_name;
+        $this->queries[$ddoc_name][$view_name] = $view_definition;
+        $this->_updateDesignDocument($ddoc_name);
         return true;
+    }
+
+    function getView($ddoc_name, $view_name)
+    {
+        $view = $this->queries[$ddoc_name][$view_name];
+        $view->db = $this;
+        return $view;
     }
 
     function touch($key, $expriy = 0)
@@ -119,46 +126,27 @@ class Couchbase extends Memcached
     }
 
     /**
-     * Utility method, updates a view group on the server
+     * Utility method, updates a design document on the server
      *
-     * @param string $group_name group to update.
+     * @param string $ddoc_name design doc to update.
      * @return void
      */
-    function _updateGroup($group_name)
+    function _updateDesignDocument($ddoc_name)
     {
-        $group = $this->queries[$group_name];
+        $ddoc_definition = $this->queries[$ddoc_name];
         $ddoc = new stdClass;
-        $ddoc->_id = "_design/$group_name";
-        foreach($group AS $name => $definition) {
-            $ddoc->views[$name] = $definition;
+        $ddoc->_id = "_design/$ddoc_name";
+        foreach($ddoc_definition AS $name => $definition) {
+            $ddoc->views[$name] = $definition->view_definition;
         }
 
         // get _rev
-        $old = json_decode($this->couchdb->open("_design/$group_name"));
+        $old = json_decode($this->couchdb->open("_design/$ddoc_name"));
         if(!$old->error) {
             $ddoc->_rev = $old->_rev;
         }
 
         $ddoc_json = json_encode($ddoc);
         $this->couchdb->saveDoc($ddoc_json);
-    }
-
-    /**
-     * Utility method, parses a query name.
-     *
-     * @param string $name query name, with optional group/ prefix.
-     * @return array ($groupname = "default", $queryname)
-     */
-    function _parseQueryName($name)
-    {
-        $parts = split("/", $name);
-        if(count($parts) == 1) {
-            $group = "default";
-            $query = $parts[0];
-        } else {
-            $group = $parts[0];
-            $query = $parts[1];
-        }
-        return array($group, $query);
     }
 }

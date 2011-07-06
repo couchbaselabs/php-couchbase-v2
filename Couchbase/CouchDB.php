@@ -79,6 +79,13 @@ class Couchbase_CouchDB
         // TODO: keys POST
         $qs = array();
         foreach($options AS $option => $value) {
+
+            // ignore null values that come in from optional arguments in
+            // the public API like getResutlsByRange($start = null, $end = null)
+            if(null === $value) {
+                continue;
+            }
+
             switch($option) {
             case "key":
             case "startkey":

@@ -6,7 +6,7 @@
  *
  * @package Couchbase
  */
-class Couchbase_QueryResult
+class Couchbase_ViewResult
 {
 
     /**
