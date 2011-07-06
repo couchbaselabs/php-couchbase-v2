@@ -289,7 +289,7 @@ EOC_JS;
         $pageKey = $resultPages->key();
 
         $resultPages = $view->getResultPaginator($rowsPerPage, $pageKey);
-        $secondPage = $resultPages->next();
+        $secondPage = $resultPages->current();
         $this->assertEquals(1, count($secondPage->rows));
         $this->assertEquals("Simon", $secondPage->rows[0]->key);
     }
@@ -308,7 +308,7 @@ EOC_JS;
         $this->assertEquals("Simon", $firstPage->rows[0]->key);
         $this->assertEquals("James", $firstPage->rows[1]->key);
 
-        $secondPage = $resultPages->next();
+        $secondPage = $resultPages->current();
         $this->assertEquals(1, count($secondPage->rows));
         $this->assertEquals("Ben", $secondPage->rows[0]->key);
     }

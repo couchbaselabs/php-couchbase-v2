@@ -28,10 +28,10 @@ class Couchbase_ViewResultPaginator implements Iterator
 
     function current()
     {
-        // TODO: startkey_docid/endkey_docid
         $options = array_merge($this->options,
             array("limit" => $this->rowsPerPage));
-        $result = $this->view->getResultByRange($page_key, null, $options);
+        // TODO: descending, flip start/end
+        $result = $this->view->getResultByRange($this->page_key, null, $options);
         return $result;
     }
 
@@ -42,7 +42,6 @@ class Couchbase_ViewResultPaginator implements Iterator
 
     function next()
     {
-        // TODO: startkey_docid/endkey_docid
         $options = array_merge($this->options,
             array("limit" => $this->rowsPerPage + 1));
         $result = $this->view->getResultByRange(
@@ -50,6 +49,7 @@ class Couchbase_ViewResultPaginator implements Iterator
             null,
             $options
         );
+        // TODO: descending, flip start/end
 
         if($result->rows[$this->rowsPerPage]->key) {
             $row = $result->rows[$this->rowsPerPage];
