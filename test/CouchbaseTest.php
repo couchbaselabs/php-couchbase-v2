@@ -88,7 +88,7 @@ EOC_JS;
         //     "group" => false,
         //     "group_level" => 0,
         //     "reduce" => true,
-        //     "inclusive_end" => false // only valid in getResultsByRange
+        //     "inclusive_end" => false // only valid in getResultByRange
         // );
 
         // key options
@@ -97,13 +97,13 @@ EOC_JS;
         // $end = "key";
         // $end = array("key", "docid");
 
-        // $result = $view->getResults([$options]);
-        // $result = $view->getResultsByKey($key, [$options]);
-        // $result = $view->getResultsRange($start, $end, [$options]);
+        // $result = $view->getResult([$options]);
+        // $result = $view->getResultByKey($key, [$options]);
+        // $result = $view->getResultRange($start, $end, [$options]);
         // $result = $query->getResultPage([$pagekey = null]);
 
 
-        $result = $view->getResults();
+        $result = $view->getResult();
         $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(3, count($result->rows));
         $this->assertEquals("Ben", $result->rows[0]->key);
@@ -117,7 +117,7 @@ EOC_JS;
         $this->prepare_ddoc();
 
         $view = $this->cb->getView("default", "name");
-        $result = $view->getResults(array("descending" => true));
+        $result = $view->getResult(array("descending" => true));
         $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(3, count($result->rows));
         $this->assertEquals("Simon", $result->rows[0]->key);
@@ -131,7 +131,7 @@ EOC_JS;
         $this->prepare_ddoc();
         $view = $this->cb->getView("default", "name");
 
-        $result = $view->getResultsByKey("James");
+        $result = $view->getResultByKey("James");
         $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(1, count($result->rows));
         $this->assertEquals("James", $result->rows[0]->key);
@@ -143,7 +143,7 @@ EOC_JS;
         $this->prepare_ddoc();
 
         $view = $this->cb->getView("default", "name");
-        $result = $view->getResultsByRange("James");
+        $result = $view->getResultByRange("James");
         $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(2, count($result->rows));
         $this->assertEquals("James", $result->rows[0]->key);
@@ -156,7 +156,7 @@ EOC_JS;
         $this->prepare_ddoc();
 
         $view = $this->cb->getView("default", "name");
-        $result = $view->getResultsByRange(array("James", $docids[1]));
+        $result = $view->getResultByRange(array("James", $docids[1]));
         $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(2, count($result->rows));
         $this->assertEquals("James", $result->rows[0]->key);
@@ -169,7 +169,7 @@ EOC_JS;
         $this->prepare_ddoc();
 
         $view = $this->cb->getView("default", "name");
-        $result = $view->getResultsByRange(null, "James");
+        $result = $view->getResultByRange(null, "James");
         $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(2, count($result->rows));
         $this->assertEquals("Ben", $result->rows[0]->key);
@@ -182,7 +182,7 @@ EOC_JS;
         $this->prepare_ddoc();
 
         $view = $this->cb->getView("default", "name");
-        $result = $view->getResultsByRange("James", "James");
+        $result = $view->getResultByRange("James", "James");
         $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(1, count($result->rows));
         $this->assertEquals("James", $result->rows[0]->key);
@@ -194,7 +194,7 @@ EOC_JS;
         $this->prepare_ddoc();
 
         $view = $this->cb->getView("default", "name");
-        $result = $view->getResults(array("limit" => 2));
+        $result = $view->getResult(array("limit" => 2));
         $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(2, count($result->rows));
         $this->assertEquals("Ben", $result->rows[0]->key);
@@ -207,7 +207,7 @@ EOC_JS;
         $this->prepare_ddoc();
 
         $view = $this->cb->getView("default", "name");
-        $result = $view->getResults(array("limit" => 2, "skip" => 1));
+        $result = $view->getResult(array("limit" => 2, "skip" => 1));
         $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(2, count($result->rows));
         $this->assertEquals("James", $result->rows[0]->key);
@@ -220,7 +220,7 @@ EOC_JS;
         $this->prepare_ddoc($with_reduce = true);
 
         $view = $this->cb->getView("default", "name");
-        $result = $view->getResults();
+        $result = $view->getResult();
         $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(3, $result->rows[0]->value);
     }
@@ -231,7 +231,7 @@ EOC_JS;
         $this->prepare_ddoc($with_reduce = true);
 
         $view = $this->cb->getView("default", "name");
-        $result = $view->getResults(array("reduce" => false));
+        $result = $view->getResult(array("reduce" => false));
         $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(3, count($result->rows));
         $this->assertEquals("Ben", $result->rows[0]->key);
@@ -245,7 +245,7 @@ EOC_JS;
         $this->prepare_ddoc($with_reduce = true);
 
         $view = $this->cb->getView("default", "name");
-        $result = $view->getResults(array("group" => true));
+        $result = $view->getResult(array("group" => true));
         $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(3, count($result->rows));
         $this->assertEquals("Ben", $result->rows[0]->key);
@@ -260,13 +260,13 @@ EOC_JS;
 
         $view = $this->cb->getView("default", "name");
         $rowsPerPage = 2;
-        $resultPages = $view->getResultsPaginator($rowsPerPage);
-        $this->assertInstanceOf("Couchbase_ViewResultsPaginator", $resultPages);
+        $resultPages = $view->getResultPaginator($rowsPerPage);
+        $this->assertInstanceOf("Couchbase_ViewResultPaginator", $resultPages);
         foreach($resultPages AS $resultPage) {
             $this->assertInstanceOf("Couchbase_ViewResult", $resultPage);
         }
 
-        $resultPages = $view->getResultsPaginator($rowsPerPage);
+        $resultPages = $view->getResultPaginator($rowsPerPage);
         $firstPage = $resultPages->next();
         $this->assertEquals(2, count($firstPage->rows));
         $this->assertEquals("Ben", $firstPage->rows[0]->key);
@@ -284,11 +284,11 @@ EOC_JS;
 
         $view = $this->cb->getView("default", "name");
         $rowsPerPage = 2;
-        $resultPages = $view->getResultsPaginator($rowsPerPage);
+        $resultPages = $view->getResultPaginator($rowsPerPage);
         $resultPages->next();
         $pageKey = $resultPages->key();
 
-        $resultPages = $view->getResultsPaginator($rowsPerPage, $pageKey);
+        $resultPages = $view->getResultPaginator($rowsPerPage, $pageKey);
         $secondPage = $resultPages->next();
         $this->assertEquals(1, count($secondPage->rows));
         $this->assertEquals("Simon", $secondPage->rows[0]->key);
@@ -302,7 +302,7 @@ EOC_JS;
         $view = $this->cb->getView("default", "name");
         $rowsPerPage = 2;
 
-        $resultPages = $view->getResultsPaginator($rowsPerPage, null, array("descending" => true));
+        $resultPages = $view->getResultPaginator($rowsPerPage, null, array("descending" => true));
         $firstPage = $resultPages->next();
         $this->assertEquals(2, count($firstPage->rows));
         $this->assertEquals("Simon", $firstPage->rows[0]->key);

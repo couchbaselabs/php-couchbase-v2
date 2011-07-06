@@ -6,7 +6,7 @@
  * @license Apache 2.0
  */
 
-class Couchbase_ViewResultsPaginator implements Iterator
+class Couchbase_ViewResultPaginator implements Iterator
 {
     var $view;
     var $rowsPerPage;
@@ -31,7 +31,7 @@ class Couchbase_ViewResultsPaginator implements Iterator
         // TODO: startkey_docid/endkey_docid
         $options = array_merge($this->options,
             array("limit" => $this->rowsPerPage));
-        $result = $this->view->getResultsByRange($page_key, null, $options);
+        $result = $this->view->getResultByRange($page_key, null, $options);
         return $result;
     }
 
@@ -45,7 +45,7 @@ class Couchbase_ViewResultsPaginator implements Iterator
         // TODO: startkey_docid/endkey_docid
         $options = array_merge($this->options,
             array("limit" => $this->rowsPerPage + 1));
-        $result = $this->view->getResultsByRange(
+        $result = $this->view->getResultByRange(
             $this->page_key,
             null,
             $options
@@ -83,25 +83,19 @@ class Couchbase_View
         $this->view_definition = new Couchbase_ViewDefinition;
     }
 
-    function getResults($options = array())
+    function getResult($options = array())
     {
         return new Couchbase_ViewResult(
             $this->db->couchdb->view($this->ddoc_name, $this->name, $options)
         );
     }
 
-    // alalalalalias
-    function getResult($options = array())
+    function getResultByKey($key, $options = array())
     {
-        return $this->getResults($options);
+        return $this->getResult(array_merge($options, array("key" => $key)));
     }
 
-    function getResultsByKey($key, $options = array())
-    {
-        return $this->getResults(array_merge($options, array("key" => $key)));
-    }
-
-    function getResultsByRange($start, $end = null, $options = array())
+    function getResultByRange($start, $end = null, $options = array())
     {
         $key_options = $startkey_options = $endkey_options = array();
 
@@ -120,12 +114,12 @@ class Couchbase_View
         }
 
         $key_options = array_merge($startkey_options, $endkey_options);
-        return $this->getResults(array_merge($options, $key_options));
+        return $this->getResult(array_merge($options, $key_options));
     }
 
-    function getResultsPaginator($rowsPerPage = 10, $pageKey = null, $options = array())
+    function getResultPaginator($rowsPerPage = 10, $pageKey = null, $options = array())
     {
-        return new Couchbase_ViewResultsPaginator($this, $rowsPerPage, $pageKey, $options);
+        return new Couchbase_ViewResultPaginator($this, $rowsPerPage, $pageKey, $options);
     }
 
     function setMapFunction($code)
