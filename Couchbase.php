@@ -17,8 +17,10 @@
  * Require dependent classes
  */
 require("Couchbase/CouchDB.php");
-require("Couchbase/ViewResult.php");
 require("Couchbase/View.php");
+require("Couchbase/ViewDefinition.php");
+require("Couchbase/ViewResult.php");
+require("Couchbase/ViewResultPaginator.php");
 
 /**
  * Exception that gets thrown when the memcached extension is not available
@@ -76,20 +78,6 @@ class Couchbase extends Memcached
         $this->query_server = array("host" => $host, "port" => 5984);
         $this->couchdb = new Couchbase_CouchDB("http://$host:5984/{$this->default_bucket_name}");
         return parent::addServer($host, $port, $weight);
-    }
-
-    /**
-     * Request a query result.
-     *
-     * @param string $name Name of the query. Optionally with a group/
-     *        prefix. The default prefix is default/
-     * @param array $options Associative array of query options that are equivalent to the CouchDB query options.
-     * @return Couchbase_QueryResult
-     */
-    function query($view, $options = array())
-    {
-        $result = $this->couchdb->view($view->ddoc_name, $view->name, $options);
-        return new Couchbase_ViewResult($result);
     }
 
     /**
