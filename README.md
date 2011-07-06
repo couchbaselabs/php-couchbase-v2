@@ -37,29 +37,31 @@ Couchbase adds a method `touch($key[, $expiry = 0])` that allows you to reset
 the expiration of a key. Previous ways of doing the same thing included
 sending the key's value to the server again, `touch()` obviates that.
 
-### `query()` Method
+### Views
 
-Couchbase 2.0 introduces a way to query your data with the
-`query($name[, $options = array()])`.
+Couchbase 2.0 introduces a way to query your data with _Views_.
 
-The Couchbase admin interface allows you to define and name your queries.
+The Couchbase admin interface allows you to define and name your views.
 
-Note, There is a way to programatically create new queries that we'll explain
+Note, There is a way to programatically create new views that we'll explain
 later.
 
+#### `getResult()`
+
 Once you created your queries in the admin interface, you can reference them
-by name in your code. Say you create a new query `by_name`:
+by name in your code. Say you create a new view `by_name`:
 
     <?php
     // setup skipped
-    $cb->query("by_name");
+    $view = $cb->getView("designdoc_name", "by_name");
 
-`query()` returns a `Couchbase_QueryResult` (see below) instance that you can
- use to access the query result:
+`getView()` returns a `Couchbase_View` (see below) instance that you can
+ use to run a query on that view:
 
     <?php
     // setup skipped
-    $result = $cb->query("by_name");
+    $view = $cb->getView("designdoc_name", "by_name");
+    $result = $view->getResult();
     foreach($result->rows AS $row) {
       echo $row->value;
     }
@@ -68,24 +70,39 @@ Each row conforms to the class definition `Couchbase_QueryResultRow` below,
 but note that the result row objects are not actually instances of that class,
 they are just described by it.
 
+#### `getResultByKey()`
+
+`getResultKey($key[, $options = array()])` allows you to return all the rows
+of a view result that match `$key` exactly.
+
+    <?php
+    // setup skipped
+    $view = $cb->getView("designdoc_name", "by_name");
+    $result = $view->getResultByKey("Foo Fighters");
+    foreach($result->rows AS $row) {
+      echo $row->value;
+    }
+
+#### `getResultByRange()`
+
+`getResultRange([$start = null][, $end = null][, $options])` allows you to
+retrieve a range from the view result delimited by the `$start` and `$end`
+arguments, both of which are optional.
+
+    <?php
+    // setup skipped
+    $view = $cb->getView("designdoc_name", "by_name");
+    $result = $view->getResultByRange("A", "M");
+    foreach($result->rows AS $row) {
+      echo $row->value;
+    }
+
 
 ### Options
 
-`query()` takes a second optional parameter `$options = array()` that is and
+`getResult()` takes a second optional parameter `$options = array()` that is and
 associative array of query options. Here's a list.
 
-Each view result is sorted by the `key` property to specified in your query
-definition. These options lets you select from the result specific keys or
-key ranges.
-
- - `key`: Return all rows with this exact key. Must be a valid JSON value.
- - `startkey`: Return all rows that start with this key or later. Must be a
-      valid JSON value
- - `endkey`: Return rows with keys up to but not including this key. See
- - `inclusive_end`: In combination with `endkey`, return rows up to and
-      including the `endkey`.
- - `startkey_docid`: Useful for manual pagination, see below (TBD)
- - `endkey_docid`: Useful for manual pagination, see below (TBD)
 
 These options give you numeric and order control over the result set:
 
