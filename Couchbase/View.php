@@ -6,7 +6,7 @@
  * @license Apache 2.0
  */
 
-class Couchbase_ResultsPaginator implements Iterator
+class Couchbase_ViewResultsPaginator implements Iterator
 {
     var $view;
     var $rowsPerPage;
@@ -125,7 +125,7 @@ class Couchbase_View
 
     function getResultsPaginator($rowsPerPage = 10, $pageKey = null, $options = array())
     {
-        return new Couchbase_ResultsPaginator($this, $rowsPerPage, $pageKey, $options);
+        return new Couchbase_ViewResultsPaginator($this, $rowsPerPage, $pageKey, $options);
     }
 
     function setMapFunction($code)

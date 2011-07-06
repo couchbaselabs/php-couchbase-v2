@@ -261,6 +261,7 @@ EOC_JS;
         $view = $this->cb->getView("default", "name");
         $rowsPerPage = 2;
         $resultPages = $view->getResultsPaginator($rowsPerPage);
+        $this->assertInstanceOf("Couchbase_ViewResultsPaginator", $resultPages);
         foreach($resultPages AS $resultPage) {
             $this->assertInstanceOf("Couchbase_ViewResult", $resultPage);
         }
