@@ -66,7 +66,7 @@ by name in your code. Say you create a new view `by_name`:
       echo $row->value;
     }
 
-Each row conforms to the class definition `Couchbase_QueryResultRow` below,
+Each row conforms to the class definition `Couchbase_ViewResultRow` below,
 but note that the result row objects are not actually instances of that class,
 they are just described by it.
 
@@ -97,6 +97,32 @@ arguments, both of which are optional.
       echo $row->value;
     }
 
+### Pagination
+
+The Couchbase PHP SDK gives you an easy pagination API that allows you to
+access your view result in pages, or spread over multiple pages.
+
+    <?php
+    // setup skipped
+    define("ROWS_PER_PAGE", 10);
+    $view = $cb->getView("designdoc_Name", "by_name");
+    $resultPages = $view->getResultPaginator(ROWS_PER_PAGE);
+    foreach($resultPages AS $page) {
+      // $page is a Couchbase_ViewResult instance
+    }
+
+If you are spreading the result set over actual page loads, you've got to
+keep a `$page_key` around:
+
+    <?php
+    // setup skipped
+    define("ROWS_PER_PAGE", 10);
+    // safer version of $_GET["page_key"];
+    $page_key = filter_input(INPUT_GET, "page_key", FILTER_SANITIZE_URL);
+    $view = $cb->getView("designdoc_Name", "by_name");
+    $resultPages = $view->getResultPaginato(ROWS_PER_PAGE, $pageKey);
+    $currentPage = $resultPages->current();
+
 
 ### Options
 
@@ -111,7 +137,7 @@ These options give you numeric and order control over the result set:
       an integer, use this sparingly and with small integers < 10 unless you
       know what you are doing.
 
- - `stale`: Query results update on read. If you specify `"stale" => "ok"`,
+ - `stale`: View results update on read. If you specify `"stale" => "ok"`,
       you will get an immediate reply, but you may get out of date data.
       If you specify `"stale" => "update_after"`, the query returns
       immediately and an index update is triggered *after* the result is
@@ -129,23 +155,23 @@ These options are for advanced queries that use a `reduce`. (TBD)
 This last one doesn't fit in any other category:
 
  - `include_docs`: along with the `key` and `value`
-   (see Couchbase_QueryResultRow), also include a `doc` member that includes
+   (see Couchbase_ViewResultRow), also include a `doc` member that includes
    the JSON value of the underlying data item.
 
 ## Classes
 
-### `Couchbase_QueryResult`
+### `Couchbase_ViewResult`
 
 
-    class Couchbase_QueryResult
+    class Couchbase_ViewResult
     {
 
       /**
-       * Number of total rows in a query result, regardless of any specified
+       * Number of total rows in a view result, regardless of any specified
        * parameters that might limit a view result, like `key`, `startkey`,
        * `endkey` and `limit`.
        *
-       * @var int Total number of rows in a query result.
+       * @var int Total number of rows in a view result.
        */
       var $total_rows = 0;
 
@@ -159,7 +185,7 @@ This last one doesn't fit in any other category:
       var $offset = 0;
 
       /**
-       * Array of result rows. This array contains all query results in an
+       * Array of result rows. This array contains all view results in an
        * array.
        *
        * @var array result rows.
@@ -167,12 +193,12 @@ This last one doesn't fit in any other category:
       var $rows = array();
     }
 
-### `Couchbase_QueryResultRow`
+### `Couchbase_ViewResultRow`
 
 Note that result rows are not actually instances of this class. This class
 definition exists just for documentation purposes.
 
-    class Couchbase_QueryResultRow
+    class Couchbase_ViewResultRow
     {
         /**
          * A query result is ordered by `key`, in each row, you can access
@@ -191,4 +217,10 @@ definition exists just for documentation purposes.
          * full JSON representation of the underlying data item.
          */
         var $doc;
+    }
+
+### `Couchbase_ViewResultPaginator`
+
+    class Couchbase_ViewResultPaginator implements Iterator
+    {
     }
