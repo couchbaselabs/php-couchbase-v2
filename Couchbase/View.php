@@ -55,9 +55,9 @@ class Couchbase_View
         return $this->getResult(array_merge($options, $key_options));
     }
 
-    function getResultPaginator($rowsPerPage = 10, $pageKey = null, $options = array())
+    function getResultPaginator()
     {
-        return new Couchbase_ViewResultPaginator($this, $rowsPerPage, $pageKey, $options);
+        return new Couchbase_ViewResultPaginator($this);
     }
 
     function setMapFunction($code)

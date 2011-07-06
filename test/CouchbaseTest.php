@@ -80,29 +80,6 @@ EOC_JS;
         $view = $this->cb->getView("default", "name");
         $this->assertInstanceOf("Couchbase_View", $view);
 
-        // Couchbase_QueryOptions $options = array(
-        //     "limit" => false,
-        //     "skip" => 0,
-        //     "descending" => false,
-        //     "stale" => false,
-        //     "group" => false,
-        //     "group_level" => 0,
-        //     "reduce" => true,
-        //     "inclusive_end" => false // only valid in getResultByRange
-        // );
-
-        // key options
-        // $start = "key";
-        // $start = array("key", "docid");
-        // $end = "key";
-        // $end = array("key", "docid");
-
-        // $result = $view->getResult([$options]);
-        // $result = $view->getResultByKey($key, [$options]);
-        // $result = $view->getResultRange($start, $end, [$options]);
-        // $result = $query->getResultPage([$pagekey = null]);
-
-
         $result = $view->getResult();
         $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(3, count($result->rows));
@@ -259,14 +236,15 @@ EOC_JS;
         $this->prepare_ddoc();
 
         $view = $this->cb->getView("default", "name");
-        $rowsPerPage = 2;
-        $resultPages = $view->getResultPaginator($rowsPerPage);
+        $resultPages = $view->getResultPaginator();
+        $resultPages->setRowsPerPage(2);
         $this->assertInstanceOf("Couchbase_ViewResultPaginator", $resultPages);
         foreach($resultPages AS $resultPage) {
             $this->assertInstanceOf("Couchbase_ViewResult", $resultPage);
         }
 
-        $resultPages = $view->getResultPaginator($rowsPerPage);
+        $resultPages = $view->getResultPaginator();
+        $resultPages->setRowsPerPage(2);
         $firstPage = $resultPages->next();
         $this->assertEquals(2, count($firstPage->rows));
         $this->assertEquals("Ben", $firstPage->rows[0]->key);
@@ -283,12 +261,15 @@ EOC_JS;
         $this->prepare_ddoc();
 
         $view = $this->cb->getView("default", "name");
-        $rowsPerPage = 2;
-        $resultPages = $view->getResultPaginator($rowsPerPage);
+        $resultPages = $view->getResultPaginator();
+        $resultPages->setRowsPerPage(2);
         $resultPages->next();
         $pageKey = $resultPages->key();
 
-        $resultPages = $view->getResultPaginator($rowsPerPage, $pageKey);
+        $resultPages = $view->getResultPaginator();
+        $resultPages->setRowsPerPage(2);
+        $resultPages->setPageKey($pageKey);
+
         $secondPage = $resultPages->current();
         $this->assertEquals(1, count($secondPage->rows));
         $this->assertEquals("Simon", $secondPage->rows[0]->key);
@@ -302,7 +283,10 @@ EOC_JS;
         $view = $this->cb->getView("default", "name");
         $rowsPerPage = 2;
 
-        $resultPages = $view->getResultPaginator($rowsPerPage, null, array("descending" => true));
+        $resultPages = $view->getResultPaginator();
+        $resultPages->setRowsPerPage(2);
+        $resultPages->setOptions(array("descending" => true));
+
         $firstPage = $resultPages->next();
         $this->assertEquals(2, count($firstPage->rows));
         $this->assertEquals("Simon", $firstPage->rows[0]->key);

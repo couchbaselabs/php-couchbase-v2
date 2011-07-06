@@ -104,9 +104,8 @@ access your view result in pages, or spread over multiple pages.
 
     <?php
     // setup skipped
-    define("ROWS_PER_PAGE", 10);
     $view = $cb->getView("designdoc_Name", "by_name");
-    $resultPages = $view->getResultPaginator(ROWS_PER_PAGE);
+    $resultPages = $view->getResultPaginator();
     foreach($resultPages AS $page) {
       // $page is a Couchbase_ViewResult instance
     }
@@ -116,11 +115,12 @@ keep a `$page_key` around:
 
     <?php
     // setup skipped
-    define("ROWS_PER_PAGE", 10);
     // safer version of $_GET["page_key"];
     $page_key = filter_input(INPUT_GET, "page_key", FILTER_SANITIZE_URL);
+
     $view = $cb->getView("designdoc_Name", "by_name");
-    $resultPages = $view->getResultPaginato(ROWS_PER_PAGE, $pageKey);
+    $resultPages = $view->getResultPaginator();
+    $resultPages->setPageKey($page_key);
     $currentPage = $resultPages->current();
 
 
@@ -224,3 +224,19 @@ definition exists just for documentation purposes.
     class Couchbase_ViewResultPaginator implements Iterator
     {
     }
+
+### `Couchbase_ViewQueryOptions`
+
+Note that this isn't an actual class, this just declares what query options
+can be used:
+
+    Couchbase_QueryOptions $options = array(
+        "limit" => false,
+        "skip" => 0,
+        "descending" => false,
+        "stale" => false,
+        "group" => false,
+        "group_level" => 0,
+        "reduce" => true,
+        "inclusive_end" => false // only valid in getResultByRange
+    );

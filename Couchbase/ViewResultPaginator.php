@@ -13,11 +13,20 @@ class Couchbase_ViewResultPaginator implements Iterator
     var $page_key = null;
     var $options = array();
 
-    function __construct($view, $rowsPerPage = 10, $pageKey = null, $options = array())
+    function __construct($view)
     {
         $this->view = $view;
+    }
+
+    function setRowsPerPage($rowsPerPage) {
         $this->rowsPerPage = $rowsPerPage;
+    }
+
+    function setPageKey($pageKey) {
         $this->page_key = $pageKey;
+    }
+
+    function setOptions($options) {
         $this->options = $options;
     }
 
