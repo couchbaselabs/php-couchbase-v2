@@ -24,17 +24,22 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
 
     function prepare_docs()
     {
+        $ids = array();
         $doc = new stdClass;
         $doc->name = "Simon";
-        $this->cb->couchdb->saveDoc(json_encode($doc));
+        $res = $this->cb->couchdb->saveDoc(json_encode($doc));
+        $ids[] = json_decode($res)->id;
 
         $doc = new stdClass;
         $doc->name = "Ben";
-        $this->cb->couchdb->saveDoc(json_encode($doc));
+        $res = $this->cb->couchdb->saveDoc(json_encode($doc));
+        $ids[] = json_decode($res)->id;
 
         $doc = new stdClass;
         $doc->name = "James";
-        $this->cb->couchdb->saveDoc(json_encode($doc));
+        $res = $this->cb->couchdb->saveDoc(json_encode($doc));
+        $ids[] = json_decode($res)->id;
+        return $ids;
     }
 
     function prepare_ddoc($with_reduce = false)
@@ -96,12 +101,7 @@ EOC_JS;
         // $result = $view->getResultsByKey($key, [$options]);
         // $result = $view->getResultsRange($start, $end, [$options]);
         // $result = $query->getResultPage([$pagekey = null]);
-        // 
-        // class Couchbase_ViewResultPage extends Couchbase_ViewResult {
-        //     var $page_id;
-        //     var $next_page_id;
-        //     var $rows
-        // }
+
 
         $result = $view->getResults();
         $this->assertInstanceOf("Couchbase_ViewResult", $result);
@@ -144,6 +144,19 @@ EOC_JS;
 
         $view = $this->cb->getView("default", "name");
         $result = $view->getResultsByRange("James");
+        $this->assertInstanceOf("Couchbase_ViewResult", $result);
+        $this->assertEquals(2, count($result->rows));
+        $this->assertEquals("James", $result->rows[0]->key);
+        $this->assertEquals("Simon", $result->rows[1]->key);
+    }
+
+    function test_basic_query_with_startkey_and_docid_option()
+    {
+        $docids = $this->prepare_docs();
+        $this->prepare_ddoc();
+
+        $view = $this->cb->getView("default", "name");
+        $result = $view->getResultsByRange(array("James", $docids[1]));
         $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(2, count($result->rows));
         $this->assertEquals("James", $result->rows[0]->key);
@@ -280,7 +293,7 @@ EOC_JS;
         $this->assertEquals("Simon", $secondPage->rows[0]->key);
     }
 
-    function test_result_page_with_option()
+    function test_result_page_with_descending_option()
     {
         $this->prepare_docs();
         $this->prepare_ddoc();

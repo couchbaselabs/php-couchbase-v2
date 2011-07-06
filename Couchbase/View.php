@@ -52,7 +52,8 @@ class Couchbase_ResultsPaginator implements Iterator
         );
 
         if($result->rows[$this->rowsPerPage]->key) {
-            $this->page_key = $result->rows[$this->rowsPerPage]->key;
+            $row = $result->rows[$this->rowsPerPage];
+            $this->page_key = array($row->key, $row->id);
         } else {
             $this->page_key = false;
         }
@@ -90,19 +91,36 @@ class Couchbase_View
     }
 
     // alalalalalias
-    function getResult($options = array()) {
+    function getResult($options = array())
+    {
         return $this->getResults($options);
     }
 
-    function getResultsByKey($key, $options = array()) {
+    function getResultsByKey($key, $options = array())
+    {
         return $this->getResults(array_merge($options, array("key" => $key)));
     }
 
-    function getResultsByRange($start, $end = null, $options = array()) {
-        return $this->getResults(array_merge($options, array(
-            "startkey" => $start,
-            "endkey" => $end
-        )));
+    function getResultsByRange($start, $end = null, $options = array())
+    {
+        $key_options = $startkey_options = $endkey_options = array();
+
+        if(is_array($start)) {
+            // TODO: throw warning if either is empty
+            $startkey_options = array("startkey" => $start[0], "startkey_docid" => $start[1]);
+        } else {
+            $startkey_options = array("startkey" => $start);
+        }
+
+        if(is_array($end)) {
+            // TODO: throw warning if either is empty
+            $endkey_options = array("endkey" => $end[0], "endkey_docid" => $end[1]);
+        } else {
+            $endkey_options = array("endkey" => $end);
+        }
+
+        $key_options = array_merge($startkey_options, $endkey_options);
+        return $this->getResults(array_merge($options, $key_options));
     }
 
     function getResultsPaginator($rowsPerPage = 10, $pageKey = null, $options = array())
