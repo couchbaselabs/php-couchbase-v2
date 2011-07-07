@@ -8,13 +8,14 @@ This package allows you to access Couchbase database servers from PHP.
     // setup
     require("Couchbase.php");
     $cb = new Couchbase;
-    $cb->addServer("localhost", 11211);
+    $cb->addCouchbaseServer("localhost"); // connects to Couchbase ports 11211
+                                          // and 5984 by default.
     
     // start storing data
     $cb->set("my_key", "my_data");
     $result = $cb->get("my_key");
     var_dump($result);
-
+    
     // Done!
 
 ## Introduction

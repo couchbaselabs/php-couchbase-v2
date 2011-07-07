@@ -73,9 +73,9 @@ class Couchbase extends Memcached
      * @param int $weight relative wright for being selected from a pool
      * @return bool
      */
-    function addServer($host, $port, $weight = 0)
+    function addCouchbaseServer($host, $port = 11211, $couchport = 5984)
     {
-        $this->query_server = array("host" => $host, "port" => 5984);
+        $this->query_server = array("host" => $host, "port" => $couchport);
         $this->couchdb = new Couchbase_CouchDB("http://$host:5984/{$this->default_bucket_name}");
         return parent::addServer($host, $port, $weight);
     }
