@@ -245,12 +245,13 @@ EOC_JS;
 
         $resultPages = $view->getResultPaginator();
         $resultPages->setRowsPerPage(2);
-        $firstPage = $resultPages->next();
+        $firstPage = $resultPages->current();
         $this->assertEquals(2, count($firstPage->rows));
         $this->assertEquals("Ben", $firstPage->rows[0]->key);
         $this->assertEquals("James", $firstPage->rows[1]->key);
 
-        $secondPage = $resultPages->next();
+        $resultPages->next(); // loooop
+        $secondPage = $resultPages->current();
         $this->assertEquals(1, count($secondPage->rows));
         $this->assertEquals("Simon", $secondPage->rows[0]->key);
     }
@@ -263,14 +264,16 @@ EOC_JS;
         $view = $this->cb->getView("default", "name");
         $resultPages = $view->getResultPaginator();
         $resultPages->setRowsPerPage(2);
-        $resultPages->next();
         $pageKey = $resultPages->key();
 
         $resultPages = $view->getResultPaginator();
         $resultPages->setRowsPerPage(2);
         $resultPages->setPageKey($pageKey);
 
+        $resultPages->rewind(); // looop init
+        $resultPages->next(); // loooop
         $secondPage = $resultPages->current();
+
         $this->assertEquals(1, count($secondPage->rows));
         $this->assertEquals("Simon", $secondPage->rows[0]->key);
     }
@@ -287,11 +290,13 @@ EOC_JS;
         $resultPages->setRowsPerPage(2);
         $resultPages->setOptions(array("descending" => true));
 
-        $firstPage = $resultPages->next();
+        $resultPages->next(); // loooop
+        $firstPage = $resultPages->current();
         $this->assertEquals(2, count($firstPage->rows));
         $this->assertEquals("Simon", $firstPage->rows[0]->key);
         $this->assertEquals("James", $firstPage->rows[1]->key);
 
+        $resultPages->next(); // loooop
         $secondPage = $resultPages->current();
         $this->assertEquals(1, count($secondPage->rows));
         $this->assertEquals("Ben", $secondPage->rows[0]->key);

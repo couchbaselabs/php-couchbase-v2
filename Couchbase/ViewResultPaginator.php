@@ -11,6 +11,7 @@ class Couchbase_ViewResultPaginator implements Iterator
     var $view;
     var $rowsPerPage;
     var $page_key = null;
+    var $next_page_key= null;
     var $options = array();
 
     function __construct($view)
@@ -33,23 +34,10 @@ class Couchbase_ViewResultPaginator implements Iterator
     function rewind()
     {
         $this->page_key = null;
+        $this->current();
     }
 
     function current()
-    {
-        $options = array_merge($this->options,
-            array("limit" => $this->rowsPerPage));
-        // TODO: descending, flip start/end
-        $result = $this->view->getResultByRange($this->page_key, null, $options);
-        return $result;
-    }
-
-    function key()
-    {
-        return $this->page_key;
-    }
-
-    function next()
     {
         $options = array_merge($this->options,
             array("limit" => $this->rowsPerPage + 1));
@@ -62,13 +50,24 @@ class Couchbase_ViewResultPaginator implements Iterator
 
         if($result->rows[$this->rowsPerPage]->key) {
             $row = $result->rows[$this->rowsPerPage];
-            $this->page_key = array($row->key, $row->id);
+            $this->next_page_key = array($row->key, $row->id);
         } else {
-            $this->page_key = false;
+            $this->next_page_key = false;
         }
 
         unset($result->rows[$this->rowsPerPage]);
         return $result;
+    }
+
+    function key()
+    {
+        return $this->page_key;
+    }
+
+    function next()
+    {
+        $this->page_key = $this->next_page_key;
+        $this->next_page_key = null;
     }
 
     function valid()
