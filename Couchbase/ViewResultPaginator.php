@@ -48,6 +48,8 @@ class Couchbase_ViewResultPaginator implements Iterator
         );
         // TODO: descending, flip start/end
 
+        // if there is an extra row at the end, grab it's key and docid and
+        // store them as the next_page_key
         if($result->rows[$this->rowsPerPage]->key) {
             $row = $result->rows[$this->rowsPerPage];
             $this->next_page_key = array($row->key, $row->id);

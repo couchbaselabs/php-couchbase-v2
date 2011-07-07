@@ -264,16 +264,16 @@ EOC_JS;
         $view = $this->cb->getView("default", "name");
         $resultPages = $view->getResultPaginator();
         $resultPages->setRowsPerPage(2);
+        $resultPages->rewind();
+        $resultPages->next();
         $pageKey = $resultPages->key();
 
         $resultPages = $view->getResultPaginator();
         $resultPages->setRowsPerPage(2);
         $resultPages->setPageKey($pageKey);
 
-        $resultPages->rewind(); // looop init
-        $resultPages->next(); // loooop
+        // $resultPages->next(); // loooop
         $secondPage = $resultPages->current();
-
         $this->assertEquals(1, count($secondPage->rows));
         $this->assertEquals("Simon", $secondPage->rows[0]->key);
     }
@@ -284,8 +284,6 @@ EOC_JS;
         $this->prepare_ddoc();
 
         $view = $this->cb->getView("default", "name");
-        $rowsPerPage = 2;
-
         $resultPages = $view->getResultPaginator();
         $resultPages->setRowsPerPage(2);
         $resultPages->setOptions(array("descending" => true));
@@ -301,5 +299,4 @@ EOC_JS;
         $this->assertEquals(1, count($secondPage->rows));
         $this->assertEquals("Ben", $secondPage->rows[0]->key);
     }
-
 }
