@@ -63,12 +63,13 @@ class Couchbase_View
     function getValues($options = array())
     {
         $result = $this->getResult($options);
-        $ids = array();
-        foreach($result->rows AS $row) {
-            $ids[] = $row->id;
-        }
+
+        // TODO: make this a anonymous function when 5.3 is our minimum version
+        function extract_id($row) { return $row->id; }
+        $ids = array_map("extract_id", $result->rows);
 
         $multi_result = $this->db->getMulti($ids);
+        // TODO: make this a anonymous function when 5.3 is our minimum version
         function jsonize($s) { return json_decode($s); }
         $jsoned_result = array_map("jsonize", $multi_result);
         return($jsoned_result);
