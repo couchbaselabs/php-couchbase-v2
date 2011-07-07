@@ -54,7 +54,6 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
         if($and_membase_values) {
             $this->cb->set($id, $json_doc);
         }
-
         $ids[] = $id;
 
         return $ids;
