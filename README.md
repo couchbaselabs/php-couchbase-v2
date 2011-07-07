@@ -46,6 +46,46 @@ The Couchbase admin interface allows you to define and name your views.
 Note, There is a way to programatically create new views that we'll explain
 later.
 
+#### `getValues()`
+
+To get a list of values according to your view definition, you can use
+`getValues([$options = array()])`.
+
+Say you define three values as JSON:
+
+    <?php
+    // setup skipped
+    $cb->set('a', '{"name": "Simon"}');
+    $cb->set('a', '{"name": "Ben"}');
+    $cb->set('a', '{"name": "James"}');
+
+And you have a view `"by_name"` that has this map function:
+
+    function(doc) { // note, this is JavaScript
+        if(doc.name) {
+          emit(doc.name);
+        }
+    }
+
+Now `getValues()` will return the values you originally specified, but sorted
+by the `name` field in them:
+
+    <?php
+    $values = $cb->getView("default", "by_name");
+    foreach($values AS $value) {
+      echo $value->name . "\n";
+    }
+
+Returns:
+
+    Ben
+    James
+    Simon
+
+
+Note: To use a view for this that defines a reduce function, you need to use
+the `"reduce" => false` option.
+
 #### `getResult()`
 
 Once you created your queries in the admin interface, you can reference them

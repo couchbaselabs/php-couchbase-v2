@@ -22,23 +22,41 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
         unset($this->cb);
     }
 
-    function prepare_docs()
+    function prepare_docs($and_membase_values = false)
     {
         $ids = array();
+
         $doc = new stdClass;
         $doc->name = "Simon";
-        $res = $this->cb->couchdb->saveDoc(json_encode($doc));
-        $ids[] = json_decode($res)->id;
+        $json_doc = json_encode($doc);
+        $res = $this->cb->couchdb->saveDoc($json_doc);
+        $id = json_decode($res)->id;
+        if($and_membase_values) {
+            $this->cb->set($id, $json_doc);
+        }
+        $ids[] = $id;
 
         $doc = new stdClass;
         $doc->name = "Ben";
-        $res = $this->cb->couchdb->saveDoc(json_encode($doc));
-        $ids[] = json_decode($res)->id;
+        $json_doc = json_encode($doc);
+        $res = $this->cb->couchdb->saveDoc($json_doc);
+        $id = json_decode($res)->id;
+        if($and_membase_values) {
+            $this->cb->set($id, $json_doc);
+        }
+        $ids[] = $id;
 
         $doc = new stdClass;
         $doc->name = "James";
-        $res = $this->cb->couchdb->saveDoc(json_encode($doc));
-        $ids[] = json_decode($res)->id;
+        $json_doc = json_encode($doc);
+        $res = $this->cb->couchdb->saveDoc($json_doc);
+        $id = json_decode($res)->id;
+        if($and_membase_values) {
+            $this->cb->set($id, $json_doc);
+        }
+
+        $ids[] = $id;
+
         return $ids;
     }
 
@@ -299,4 +317,17 @@ EOC_JS;
         $this->assertEquals(1, count($secondPage->rows));
         $this->assertEquals("Ben", $secondPage->rows[0]->key);
     }
+
+    function test_value_return_membase_style()
+    {
+        $ids = $this->prepare_docs($and_membase_values = true);
+        $this->prepare_ddoc();
+
+        $view = $this->cb->getView("default", "name");
+        $values = $view->getValues();
+        $this->assertEquals("Ben", $values[$ids[1]]->name);
+        $this->assertEquals("James", $values[$ids[2]]->name);
+        $this->assertEquals("Simon", $values[$ids[0]]->name);
+    }
+
 }

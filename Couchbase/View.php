@@ -55,6 +55,25 @@ class Couchbase_View
         return $this->getResult(array_merge($options, $key_options));
     }
 
+    /**
+     * Retrieve values from cache in view result order.
+     *
+     * @return void
+     */
+    function getValues($options = array())
+    {
+        $result = $this->getResult($options);
+        $ids = array();
+        foreach($result->rows AS $row) {
+            $ids[] = $row->id;
+        }
+
+        $multi_result = $this->db->getMulti($ids);
+        function jsonize($s) { return json_decode($s); }
+        $jsoned_result = array_map("jsonize", $multi_result);
+        return($jsoned_result);
+    }
+
     function getResultPaginator()
     {
         return new Couchbase_ViewResultPaginator($this);
