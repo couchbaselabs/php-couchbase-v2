@@ -43,6 +43,7 @@ class Couchbase_ViewResult
     function __construct($result_json)
     {
         $result = json_decode($result_json);
+
         $this->total_rows = $result->total_rows;
         $this->offset = $result->offset;
         $this->rows = $result->rows;

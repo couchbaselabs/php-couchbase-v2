@@ -317,6 +317,8 @@ EOC_JS;
         $this->assertEquals("Ben", $secondPage->rows[0]->key);
     }
 
+    // getValues()
+
     function test_value_return_membase_style()
     {
         $ids = $this->prepare_docs($and_membase_values = true);
@@ -329,4 +331,18 @@ EOC_JS;
         $this->assertEquals("Simon", $values[$ids[0]]->name);
     }
 
+    // error handling
+    // function test_basic_query_with_error()
+    // {
+    //     $this->prepare_docs();
+    //     $this->prepare_ddoc();
+    // 
+    //     $view = $this->cb->getView("default", "name_with_timeout_error");
+    //     $this->assertInstanceOf("Couchbase_View", $view);
+    // 
+    //     $result = $view->getResult();
+    //     $this->assertInstanceOf("Couchbase_ViewResult", $result);
+    //     $this->assertTrue($result->error());
+    //     $this->assertEquals("timeout", $result->errorMessage());
+    // }
 }
