@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<package version="2.0" xmlns="http://pear.php.net/dtd/package-2.0"
+  xmlns:tasks="http://pear.php.net/dtd/tasks-1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
+  http://pear.php.net/dtd/tasks-1.0.xsd
+  http://pear.php.net/dtd/package-2.0
+  http://pear.php.net/dtd/package-2.0.xsd">
+  <name>Couchbase</name>
+  <channel>php.couchbase.org</channel>
+
+  <summary>Couchbase SDK</summary>
+  <description>
+    The Couchbase SDK allows you to interact with the Couchbase server and cluster solutions
+  </description>
+  <lead>
+    <name>Couchbase</name>
+    <user>jan</user>
+    <email>jan@couchbase.com</email>
+    <active>yes</active>
+  </lead>
+  <date>2011-07-14</date>
+  <version>
+    <release>0.1.0</release>
+    <api>0.1.0</api>
+  </version>
+  <stability>
+    <release>alpha</release>
+    <api>alpha</api>
+  </stability>
+  <license uri="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2.0 License</license>
+    <notes>
+      Initial Release
+    </notes>
+    <contents>
+      <dir name="/">
+        <dir name="Couchbase">
+          <file name="CouchDB.php" role="php" />
+          <file name="View.php" role="php" />
+          <file name="ViewDefinition.php" role="php" />
+          <file name="ViewResult.php" role="php" />
+          <file name="ViewResultPaginator.php" role="php" />
+        </dir>
+        <file name="Couchbase.php" role="php" />
+      </dir> <!-- / -->
+    </contents>
+    <dependencies>
+      <required>
+        <php>
+          <min>5.2</min>
+          <max>6.0.0</max>
+        </php>
+        <pearinstaller>
+          <min>1.9.2</min>
+        </pearinstaller>
+        <package>
+          <name>memcached</name>
+          <channel>php.couchbase.org</channel>
+          <min>2.0.1</min>
+          <recommended>2.0.1</recommended>
+        </package>
+      </required>
+    </dependencies>
+    <phprelease></phprelease>
+</package>
