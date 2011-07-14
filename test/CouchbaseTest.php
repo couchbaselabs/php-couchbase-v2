@@ -12,7 +12,7 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
     function setUp()
     {
         $this->cb = new Couchbase;
-        $this->cb->addCouchbaseServer("localhost", 11211, 5984);
+        $this->cb->addCouchbaseServer("localhost", 11211, 9500);
         $this->cb->couchdb->deleteDb("default");
         $this->cb->couchdb->createDb("default");
     }
