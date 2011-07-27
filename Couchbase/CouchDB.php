@@ -74,7 +74,7 @@ class Couchbase_CouchDB
      * @param string $options Associative array of CouchDBview query options.
      * @return string JSON result set of a CouchDB view Query.
      */
-    function view($group, $name, $options)
+    function view($group, $name, $options = array())
     {
         // TODO: keys POST
         $qs = array();
@@ -109,18 +109,20 @@ class Couchbase_CouchDB
             }
         }
         $qs = join("&", $qs);
-        return $this->send("GET", $this->server->path . "/_design/$group/_view/name?$qs");
+        return $this->send("GET", $this->server->path . "/_design/$group/_view/$name?$qs");
     }
 
     /**
-     * Utility method, send an HTTP request to CouchDB
+     * Utility^W Gehtto method, send an HTTP request to CouchDB
+     *
+     * TODO: This really needs to be moved to a proper HTTP client.
      *
      * @param string $method HTTP method, GET, PUT, POST, DELETE etc.
      * @param string $url The path component of a URL.
      * @param string $post_data Data to send with a POST or PUT request.
      * @return string JSON response.
      */
-    function send($method, $url, $post_data = NULL)
+    function send($method, $url, $post_data = NULL, $content_type = "application/json")
     {
         $s = fsockopen(
             $this->server->host,
@@ -137,16 +139,19 @@ class Couchbase_CouchDB
         $request = "$method $url HTTP/1.0\r\nHost: $host\r\n";
 
         if(isset($this->server->user)) {
-            $request .= "Authorization: Basic ".base64_encode("$this->server->user:$this->server->pass")."\r\n";
+            $request .= "Authorization: Basic ".base64_encode("{$this->server->user}:{$this->server->pass}")."\r\n";
         }
 
         if($post_data) {
-            $request .= "Content-Type: application/json\r\n";
+            $request .= "Content-Type: $content_type\r\n";
             $request .= "Content-Length: ".strlen($post_data)."\r\n\r\n";
             $request .= "$post_data\r\n";
         } else {
             $request .= "\r\n";
         }
+        // var_dump("--------------------------------");
+        // var_dump($request);
+        // var_dump("-------------");
         fwrite($s, $request); 
         $response = ""; 
 
@@ -155,7 +160,17 @@ class Couchbase_CouchDB
         }
 
         list($this->headers, $this->body) = explode("\r\n\r\n", $response);
-
+        if($response == "") {
+            // var_dump("                             -------------------------------");
+            // var_dump("                             ERROR EMPTY SERVER RESPONSE");
+            // var_dump($request);
+            // var_dump("                             -------------------------------");
+            // var_dump($response);
+            // var_dump("                             -------------------------------");
+            // exit (1);
+        }
+        // var_dump($response);
+        // var_dump("--------------------------------");
         return $this->body;
     }
 }

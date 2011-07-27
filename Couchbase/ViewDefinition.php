@@ -21,7 +21,7 @@ class Couchbase_ViewDefinition
      * @var string JavaScript reduce function.
      */
     var $reduce = null;
-
+    var $options = array();
     /**
      * Add map function code to the query definition.
      *

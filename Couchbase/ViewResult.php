@@ -36,6 +36,13 @@ class Couchbase_ViewResult
     var $rows = array();
 
     /**
+     * Array of error rows. This array contains all errors from the query.
+     * Or only one, if the on_error=stop option is used.
+     * It is `null` when there are no errors.
+     */
+     var $errors = null;
+
+    /**
      * Constrictor, takes a CouchDB view result JSON string as a parameter.
      *
      * @param string $result_json CouchDB view result.
@@ -44,8 +51,17 @@ class Couchbase_ViewResult
     {
         $result = json_decode($result_json);
 
-        $this->total_rows = $result->total_rows;
-        $this->offset = $result->offset;
+        if(isset($result->total_rows)) {
+            $this->total_rows = $result->total_rows;
+        }
+
+        if(isset($result->offset)) {
+            $this->offset = $result->offset;
+        }
+
         $this->rows = $result->rows;
+        if(isset($result->errors)) {
+            $this->errors = $result->errors;
+        }
     }
 }

@@ -1,6 +1,10 @@
 test:
 	phpunit --verbose test/CouchbaseTest.php
 
+clustertest:
+	./test/cluster-setup.sh
+	phpunit --verbose test/CouchbaseClusterTest.php
+
 cover:
 	phpunit --coverage-html cover test/CouchbaseTest
 	open cover/index.html

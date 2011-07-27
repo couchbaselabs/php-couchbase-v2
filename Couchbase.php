@@ -17,6 +17,7 @@
  * Require dependent classes
  */
 require("Couchbase/CouchDB.php");
+require("Couchbase/Internal.php");
 require("Couchbase/View.php");
 require("Couchbase/ViewDefinition.php");
 require("Couchbase/ViewResult.php");
@@ -73,11 +74,17 @@ class Couchbase extends Memcached
      * @param int $weight relative wright for being selected from a pool
      * @return bool
      */
-    function addCouchbaseServer($host, $port = 11211, $couchport = 5984)
+    function addCouchbaseServer($host, $port = 11211, $couchport = 5984,
+        /* private*/ $internal_host = null, $internal_port = 9000 /* private end */)
     {
+        if($internal_host === null) {
+            $internal_host = $host;
+        }
+
         $this->query_server = array("host" => $host, "port" => $couchport);
         $this->couchdb = new Couchbase_CouchDB("http://$host:$couchport/{$this->default_bucket_name}");
-        return parent::addServer($host, $port, $weight);
+        $this->couchbase = new Couchbase_Internal("http://$internal_host:$internal_port/");
+        return parent::addServer($host, $port);
     }
 
     /**
@@ -93,7 +100,23 @@ class Couchbase extends Memcached
         $view_definition->name = $view_name;
         $this->queries[$ddoc_name][$view_name] = $view_definition;
         $this->_updateDesignDocument($ddoc_name);
+        $this->_waitForDesignDocUglyHack($ddoc_name);
         return true;
+    }
+
+    // wait for ddocs to be all synced to all buckets and whatnot
+    // the server should do the wait for me or send me a notification
+    function _waitForDesignDocUglyHack($ddoc_name)
+    {
+        // var_dump("--waitForDdoc");
+        sleep(4);
+        // do {
+        //     usleep(300);
+        //     $result = $this->couchdb->view("default", $ddoc_name);
+        //     var_dump($result);
+        //     $json_result = json_decode($result);
+        // } while(isset($json_result->error) && ($json_result->error == "not_found"));
+        // var_dump("--done waitForDdoc");
     }
 
     function getView($ddoc_name, $view_name)
@@ -125,12 +148,26 @@ class Couchbase extends Memcached
         $ddoc = new stdClass;
         $ddoc->_id = "_design/$ddoc_name";
         foreach($ddoc_definition AS $name => $definition) {
-            $ddoc->views[$name] = $definition->view_definition;
+            // why does PHP lack "undefined"?
+            $view_def = new stdClass;
+            if($definition->view_definition->map) {
+                $view_def->map = $definition->view_definition->map;
+            }
+
+            if($definition->view_definition->reduce) {
+                $view_def->reduce = $definition->view_definition->reduce;
+            }
+
+            if($definition->view_definition->options) {
+                $view_def->options = $definition->view_definition->options;
+            }
+
+            $ddoc->views[$name] = $view_def;
         }
 
         // get _rev
         $old = json_decode($this->couchdb->open("_design/$ddoc_name"));
-        if(!$old->error) {
+        if(!isset($old->error)) {
             $ddoc->_rev = $old->_rev;
         }
 
