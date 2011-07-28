@@ -8,7 +8,7 @@
  * This client is designed to be compatible with Couchbase 2.0 and later.
  *
  * @author Jan Lehnardt <jan@couchbase.com>
- * @version 0.0.1
+ * @version 0.9.0
  * @package Couchbase
  * @license Apache 2.0, See LICENSE file.
  */
@@ -75,7 +75,7 @@ class Couchbase extends Memcached
      * @return bool
      */
     function addCouchbaseServer($host, $port = 11211, $couchport = 5984,
-        /* private*/ $internal_host = null, $internal_port = 9000 /* private end */)
+        /* private*/ $internal_host = null, $internal_port = 8091 /* private end */)
     {
         if($internal_host === null) {
             $internal_host = $host;
