@@ -19,10 +19,10 @@
     <email>jan@couchbase.com</email>
     <active>yes</active>
   </lead>
-  <date>2011-07-14</date>
+  <date>2011-07-28</date>
   <version>
-    <release>0.1.0</release>
-    <api>0.1.0</api>
+    <release>0.9.0</release>
+    <api>0.9.0</api>
   </version>
   <stability>
     <release>alpha</release>
@@ -40,6 +40,7 @@
           <file name="ViewDefinition.php" role="php" />
           <file name="ViewResult.php" role="php" />
           <file name="ViewResultPaginator.php" role="php" />
+          <file name="Internal.php" role="php" />
         </dir>
         <file name="Couchbase.php" role="php" />
       </dir> <!-- / -->
