@@ -2,6 +2,19 @@
 
 This package allows you to access Couchbase database servers from PHP.
 
+## Quality Notice
+
+The code here is a first stab, none of this is final, and we may have made
+a few bad choices along the way. It works in our testing, but you know how
+that goes. So beware, dragons and all, and if you are so kind, let us know
+of any issues you might have reading or using this code. We'd like to make
+it absolutely fab for you, but we need you to tell us where we fail.
+
+Any patches you might have to fix your pet peeves are very welcome, this is
+Open Source after all.
+
+ <https://github.com/couchbaselabs/php-couchbase>
+
 ## Quick Start
 
     <?php
@@ -281,3 +294,18 @@ can be used:
         "reduce" => true,
         "inclusive_end" => false // only valid in getResultByRange
     );
+
+## Todo
+
+ - integrate proper(!) HTTP client
+
+## Copyright & License
+
+(c) Couchbase, Inc
+
+Apache 2.0 licensed.
+
+https://github.com/couchbaselabs/php-couchbase
+
+Jan Lehnardt <jan@couchbase.com>
+
