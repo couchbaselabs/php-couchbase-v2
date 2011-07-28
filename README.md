@@ -22,7 +22,7 @@ Open Source after all.
     require("Couchbase.php");
     $cb = new Couchbase;
     $cb->addCouchbaseServer("localhost"); // connects to Couchbase ports 11211
-                                          // and 5984 by default.
+                                          // and 8091 by default.
     
     // start storing data
     $cb->set("my_key", "my_data");
@@ -76,9 +76,9 @@ Say you define three values as JSON:
 And you have a view `"by_name"` that has this map function:
 
     function(doc) { // note, this is JavaScript
-        if(doc.name) {
-          emit(doc.name);
-        }
+      if(doc.name) {
+        emit(doc.name);
+      }
     }
 
 Now `getValues()` will return the values you originally specified, but sorted
@@ -126,7 +126,7 @@ they are just described by it.
 
 #### `getResultByKey()`
 
-`getResultKey($key[, $options = array()])` allows you to return all the rows
+`getResultByKey($key[, $options = array()])` allows you to return all the rows
 of a view result that match `$key` exactly.
 
     <?php
@@ -139,9 +139,9 @@ of a view result that match `$key` exactly.
 
 #### `getResultByRange()`
 
-`getResultRange([$start = null][, $end = null][, $options])` allows you to
-retrieve a range from the view result delimited by the `$start` and `$end`
-arguments, both of which are optional.
+`getResultRange([$start = null][, $end = null][, $options = array()])` allows
+you to retrieve a range from the view result delimited by the `$start` and
+`$end` arguments, both of which are optional.
 
     <?php
     // setup skipped
@@ -150,6 +150,27 @@ arguments, both of which are optional.
     foreach($result->rows AS $row) {
       echo $row->value;
     }
+
+### `getValues()`
+
+`getValues([$options = array()])` allows you to fetch all values associated
+with keys in key sort order. So instead of values you could explicitly extract
+from your values, you just get the full values.
+
+    <?php
+    // setup skipped
+    $view = $cb->getView("designdoc_name", "by_name");
+    $result = $view->getValues();
+    foreach($result->rows AS $row) {
+      echo $row->value;
+    }
+
+Prints:
+
+    {"name": "Ben"}
+    {"name": "James"}
+    {"name": "Simon"}
+
 
 ### Pagination
 
@@ -300,10 +321,17 @@ can be used:
  - integrate proper(!) HTTP client
  - detect new couch-api endpoints dynamically
  - make E_ALL | E_STRICT | E_DEPRECATED compatible
+ - add proper credits
+
+## Credits
+
+php-memcached extension.
+libmemcached library.
+
 
 ## Copyright & License
 
-(c) Couchbase, Inc
+(c) 2011 Couchbase, Inc
 
 Apache 2.0 licensed.
 
