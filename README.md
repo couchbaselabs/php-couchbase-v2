@@ -298,6 +298,7 @@ can be used:
 ## Todo
 
  - integrate proper(!) HTTP client
+ - detect new couch-api endpoints dynamically
 
 ## Copyright & License
 
