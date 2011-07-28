@@ -299,6 +299,7 @@ can be used:
 
  - integrate proper(!) HTTP client
  - detect new couch-api endpoints dynamically
+ - make E_ALL | E_STRICT | E_DEPRECATED compatible
 
 ## Copyright & License
 
