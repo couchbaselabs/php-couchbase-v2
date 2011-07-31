@@ -171,6 +171,30 @@ Prints:
     {"name": "James"}
     {"name": "Simon"}
 
+### All Docs
+
+The *all docs* view is an ordered-by-key list of all your values. It behaves
+like any other view, except that it is built-in and doesn't require prior
+definition.
+
+    <?php
+    // setup skipped
+    $cb->set("a", {"name": "Ben"});
+    $cb->set("b", {"name": "James"});
+    $cb->set("c", {"name": "Simon"});
+
+    $allDocs = $cb->getAllDocsView();
+    $result = $allDocs->getValues();
+    foreach($result->rows AS $row) {
+      echo $row->value;
+    }
+
+Prints:
+
+    {"name": "Ben"}
+    {"name": "James"}
+    {"name": "Simon"}
+
 
 ### Pagination
 
