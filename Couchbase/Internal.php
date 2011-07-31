@@ -27,6 +27,13 @@ class Couchbase_Internal extends Couchbase_CouchDB
         return $result;
     }
 
+    function bucketExists($name)
+    {
+        $bucket_info = $this->send("GET", "/pools/default/buckets/$name");
+        return $bucket_info != '["Unexpected server error, request logged."]'
+            && $bucket_info != "Requested resource not found.";
+    }
+
     /**
       * bucket creation is async, for the time being, we need to poll until
       * it is there.

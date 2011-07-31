@@ -42,7 +42,7 @@ class Couchbase_Test_Lib
         }
 EOC_JS;
 
-        $view = new Couchbase_View;
+        $view = new Couchbase_View("default", "name");
         $view->setMapFunction($map_fun);
 
         if($with_reduce) {
@@ -54,6 +54,6 @@ EOC_JS;
             $view->setReduceFunction($reduce_fun);
         }
 
-        $this->cb->addView("default", "name", $view);
+        $this->cb->addView($view);
     }
 }

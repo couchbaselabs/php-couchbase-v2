@@ -76,6 +76,18 @@ class Couchbase_CouchDB
      */
     function view($group, $name, $options = array())
     {
+        $qs = $this->_options_to_query_string($options);
+        return $this->send("GET", $this->server->path . "/_design/$group/_view/$name?$qs");
+    }
+
+    function allDocs($options)
+    {
+        $qs = $this->_options_to_query_string($options);
+        return $this->send("GET", $this->server->path . "/_all_docs?$qs");
+    }
+
+    function _options_to_query_string($options)
+    {
         // TODO: keys POST
         $qs = array();
         foreach($options AS $option => $value) {
@@ -108,8 +120,7 @@ class Couchbase_CouchDB
             break;
             }
         }
-        $qs = join("&", $qs);
-        return $this->send("GET", $this->server->path . "/_design/$group/_view/$name?$qs");
+        return join("&", $qs);
     }
 
     /**

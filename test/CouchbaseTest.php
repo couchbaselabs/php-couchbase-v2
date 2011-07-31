@@ -10,13 +10,15 @@ require_once "PHPUnit/Framework/TestCase.php";
  */
 class CouchbaseTest extends PHPUnit_Framework_TestCase
 {
-    function setUp()
+    function setUp($flush = true)
     {
         $this->cb = new Couchbase;
         $this->cb->addCouchbaseServer("localhost", 12001, 9500, "localhost", 9000);
-        $this->cb->flush();
-        // $this->cb->couchbase->deleteDb("default", $this->cb);
-        $this->cb->couchbase->createDb("default", $this->cb);
+        if($flush) {
+            $this->cb->flush();
+            // $this->cb->couchbase->deleteDb("default", $this->cb);
+            $this->cb->couchbase->createDb("default", $this->cb);
+        }
         $this->lib = new Couchbase_Test_Lib($this->cb);
     }
 
@@ -28,7 +30,7 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
 
     function test_instantiation()
     {
-        //$this->assertInstanceOf("Couchbase", $this->cb);
+        $this->assertInstanceOf("Couchbase", $this->cb);
     }
 
     function test_basic_query()
@@ -37,10 +39,10 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
         $this->lib->prepare_ddoc();
 
         $view = $this->cb->getView("default", "name");
-        //$this->assertInstanceOf("Couchbase_View", $view);
+        $this->assertInstanceOf("Couchbase_View", $view);
 
         $result = $view->getResult();
-        //$this->assertInstanceOf("Couchbase_ViewResult", $result);
+        $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(3, count($result->rows));
         $this->assertEquals("Ben", $result->rows[0]->key);
         $this->assertEquals("James", $result->rows[1]->key);
@@ -54,7 +56,7 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
 
         $view = $this->cb->getView("default", "name");
         $result = $view->getResult(array("descending" => true));
-        //$this->assertInstanceOf("Couchbase_ViewResult", $result);
+        $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(3, count($result->rows));
         $this->assertEquals("Simon", $result->rows[0]->key);
         $this->assertEquals("James", $result->rows[1]->key);
@@ -68,7 +70,7 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
         $view = $this->cb->getView("default", "name");
 
         $result = $view->getResultByKey("James");
-        //$this->assertInstanceOf("Couchbase_ViewResult", $result);
+        $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(1, count($result->rows));
         $this->assertEquals("James", $result->rows[0]->key);
     }
@@ -80,7 +82,7 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
 
         $view = $this->cb->getView("default", "name");
         $result = $view->getResultByRange("James");
-        //$this->assertInstanceOf("Couchbase_ViewResult", $result);
+        $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(2, count($result->rows));
         $this->assertEquals("James", $result->rows[0]->key);
         $this->assertEquals("Simon", $result->rows[1]->key);
@@ -93,7 +95,7 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
 
         $view = $this->cb->getView("default", "name");
         $result = $view->getResultByRange(array("James", $docids[1]));
-        //$this->assertInstanceOf("Couchbase_ViewResult", $result);
+        $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(2, count($result->rows));
         $this->assertEquals("James", $result->rows[0]->key);
         $this->assertEquals("Simon", $result->rows[1]->key);
@@ -106,7 +108,7 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
 
         $view = $this->cb->getView("default", "name");
         $result = $view->getResultByRange(null, "James");
-        //$this->assertInstanceOf("Couchbase_ViewResult", $result);
+        $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(2, count($result->rows));
         $this->assertEquals("Ben", $result->rows[0]->key);
         $this->assertEquals("James", $result->rows[1]->key);
@@ -119,7 +121,7 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
 
         $view = $this->cb->getView("default", "name");
         $result = $view->getResultByRange("James", "James");
-        //$this->assertInstanceOf("Couchbase_ViewResult", $result);
+        $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(1, count($result->rows));
         $this->assertEquals("James", $result->rows[0]->key);
     }
@@ -131,7 +133,7 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
 
         $view = $this->cb->getView("default", "name");
         $result = $view->getResult(array("limit" => 2));
-        //$this->assertInstanceOf("Couchbase_ViewResult", $result);
+        $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(2, count($result->rows));
         $this->assertEquals("Ben", $result->rows[0]->key);
         $this->assertEquals("James", $result->rows[1]->key);
@@ -144,7 +146,7 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
 
         $view = $this->cb->getView("default", "name");
         $result = $view->getResult(array("limit" => 2, "skip" => 1));
-        //$this->assertInstanceOf("Couchbase_ViewResult", $result);
+        $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(2, count($result->rows));
         $this->assertEquals("James", $result->rows[0]->key);
         $this->assertEquals("Simon", $result->rows[1]->key);
@@ -157,7 +159,7 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
 
         $view = $this->cb->getView("default", "name");
         $result = $view->getResult();
-        //$this->assertInstanceOf("Couchbase_ViewResult", $result);
+        $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(3, $result->rows[0]->value);
     }
 
@@ -168,7 +170,7 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
 
         $view = $this->cb->getView("default", "name");
         $result = $view->getResult(array("reduce" => false));
-        //$this->assertInstanceOf("Couchbase_ViewResult", $result);
+        $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(3, count($result->rows));
         $this->assertEquals("Ben", $result->rows[0]->key);
         $this->assertEquals("James", $result->rows[1]->key);
@@ -182,7 +184,7 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
 
         $view = $this->cb->getView("default", "name");
         $result = $view->getResult(array("group" => true));
-        //$this->assertInstanceOf("Couchbase_ViewResult", $result);
+        $this->assertInstanceOf("Couchbase_ViewResult", $result);
         $this->assertEquals(3, count($result->rows));
         $this->assertEquals("Ben", $result->rows[0]->key);
         $this->assertEquals("James", $result->rows[1]->key);
@@ -197,9 +199,9 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
         $view = $this->cb->getView("default", "name");
         $resultPages = $view->getResultPaginator();
         $resultPages->setRowsPerPage(2);
-        //$this->assertInstanceOf("Couchbase_ViewResultPaginator", $resultPages);
+        $this->assertInstanceOf("Couchbase_ViewResultPaginator", $resultPages);
         foreach($resultPages AS $resultPage) {
-            //$this->assertInstanceOf("Couchbase_ViewResult", $resultPage);
+            $this->assertInstanceOf("Couchbase_ViewResult", $resultPage);
         }
 
         $resultPages = $view->getResultPaginator();
@@ -259,8 +261,6 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("Ben", $secondPage->rows[0]->key);
     }
 
-    // getValues()
-
     function test_value_return_membase_style()
     {
         $ids = $this->lib->prepare_docs();
@@ -274,6 +274,24 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("Simon", $values[$ids[0]]->name);
     }
 
+    function test_reading_views_from_server()
+    {
+        $this->lib->prepare_docs();
+        $this->lib->prepare_ddoc();
+
+        $this->setUp(false); // re-init the Couchbase object to force view
+                             // reading from the server
+
+        $view = $this->cb->getView("default", "name");
+        $result = $view->getResult();
+
+        $this->assertInstanceOf("Couchbase_ViewResult", $result);
+        $this->assertEquals(3, count($result->rows));
+        $this->assertEquals("Ben", $result->rows[0]->key);
+        $this->assertEquals("James", $result->rows[1]->key);
+        $this->assertEquals("Simon", $result->rows[2]->key);
+    }
+
     // // error handling
     // function test_basic_query_with_error()
     // {
@@ -281,10 +299,10 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
     //     $this->lib->prepare_ddoc();
     // 
     //     $view = $this->cb->getView("default", "name_with_timeout_error");
-    //     //$this->assertInstanceOf("Couchbase_View", $view);
+    //     $this->assertInstanceOf("Couchbase_View", $view);
     // 
     //     $result = $view->getResult();
-    //     //$this->assertInstanceOf("Couchbase_ViewResult", $result);
+    //     $this->assertInstanceOf("Couchbase_ViewResult", $result);
     //     $this->assertTrue($result->error());
     //     $this->assertEquals("timeout", $result->errorMessage());
     // }

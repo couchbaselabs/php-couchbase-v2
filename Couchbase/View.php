@@ -9,15 +9,35 @@
 /*
 TODO: Add query options and different languages.
 */
+
+class Couchbase_AllDocsView extends Couchbase_View
+{
+    function __construct()
+    {
+        parent::__construct("_builtin", "_all_docs");
+    }
+
+    function getResult($options = array())
+    {
+        return new Couchbase_ViewResult(
+            $this->db->couchdb->allDocs($options)
+        );
+    }
+}
+
 class Couchbase_View
 {
     var $_id;
     var $_rev;
     var $db;
     var $view_definition;
+    var $ddoc_name;
+    var $view_name;
 
-    function __construct()
+    function __construct($ddoc_name, $view_name)
     {
+        $this->ddoc_name = $ddoc_name;
+        $this->name = $view_name;
         $this->view_definition = new Couchbase_ViewDefinition;
     }
 

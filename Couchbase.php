@@ -84,6 +84,7 @@ class Couchbase extends Memcached
         $this->query_server = array("host" => $host, "port" => $couchport);
         $this->couchdb = new Couchbase_CouchDB("http://$host:$couchport/{$this->default_bucket_name}");
         $this->couchbase = new Couchbase_Internal("http://$internal_host:$internal_port/");
+        $this->_readDesignDocs();
         return parent::addServer($host, $port);
     }
 
@@ -94,13 +95,12 @@ class Couchbase extends Memcached
      * @param Couchbase_ViewDefinition $query_definition View definition.
      * @return bool
      */
-    function addView($ddoc_name, $view_name, $view_definition)
+    function addView($view_definition)
     {
-        $view_definition->ddoc_name = $ddoc_name;
-        $view_definition->name = $view_name;
-        $this->queries[$ddoc_name][$view_name] = $view_definition;
-        $this->_updateDesignDocument($ddoc_name);
-        $this->_waitForDesignDocUglyHack($ddoc_name);
+        $this->queries[$view_definition->ddoc_name]
+            [$view_definition->name] = $view_definition;
+        $this->_updateDesignDocument($view_definition->ddoc_name);
+        $this->_waitForDesignDocUglyHack($view_definition->ddoc_name);
         return true;
     }
 
@@ -121,9 +121,20 @@ class Couchbase extends Memcached
 
     function getView($ddoc_name, $view_name)
     {
+        if(!isset($this->queries[$ddoc_name][$view_name])) {
+            return false;
+        }
+
         $view = $this->queries[$ddoc_name][$view_name];
-        $view->db = $this;
+        $view->db = $this; // UUUGLY
         return $view;
+    }
+
+    function getAllDocsView()
+    {
+        $allDocsView = new Couchbase_AllDocsView;
+        $allDocsView->db = $this;
+        return $allDocsView;
     }
 
     function touch($key, $expriy = 0)
@@ -134,6 +145,27 @@ class Couchbase extends Memcached
             return false;
         }
         return parent::touch($key, $expiry);
+    }
+
+    function _readDesignDocs()
+    {
+        if(!$this->couchbase->bucketExists($this->default_bucket_name)) {
+            return;
+        }
+
+        $view = $this->getAllDocsView();
+        $ddocs = $view->getResultByRange("_design/", "_design0",
+            array("include_docs" => true));
+        foreach($ddocs->rows AS $ddoc_row) {
+            $ddoc = $ddoc_row->doc;
+            $ddoc_name = str_replace("_design/", "", $ddoc->_id);
+            if(isset($ddoc->views)) {
+                foreach($ddoc->views AS $view_name => $definition) {
+                    $view = new Couchbase_View($ddoc_name, $view_name);
+                    $this->queries[$ddoc_name][$view_name] = $view;
+                }
+            }
+        }
     }
 
     /**
