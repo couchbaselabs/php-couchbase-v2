@@ -126,7 +126,7 @@ class Couchbase extends Memcached
         }
 
         $view = $this->queries[$ddoc_name][$view_name];
-        $view->db = $this; // UUUGLY
+        $view->db = $this;
         return $view;
     }
 
