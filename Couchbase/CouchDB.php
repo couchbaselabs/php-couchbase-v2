@@ -8,6 +8,13 @@ class Couchbase_CouchDB
 {
 
     /**
+     * CouchDB server url, parsed into an object.
+     *
+     * @var URL CouchDB Server URL
+     */
+    var $server = null;
+
+    /**
      * Constructor, takes a URL spcifying the CouchDB server and database.
      *
      * @param string $dsn URL to a CouchDB server and database
@@ -15,6 +22,7 @@ class Couchbase_CouchDB
      */
     function __construct($dsn)
     {
+        $this->server = new stdClass;
         $this->dsn = $dsn;
         foreach(parse_url($dsn) AS $k => $v) {
             $this->server->$k = $v;
@@ -71,21 +79,34 @@ class Couchbase_CouchDB
      *
      * @param string $group Design document / view group name.
      * @param string $name View name.
-     * @param string $options Associative array of CouchDBview query options.
+     * @param string $options Associative array of CouchDB view query options.
      * @return string JSON result set of a CouchDB view Query.
      */
     function view($group, $name, $options = array())
     {
         $qs = $this->_options_to_query_string($options);
-        return $this->send("GET", $this->server->path . "/_design/$group/_view/$name?$qs");
+        return $this->send("GET",
+            $this->server->path . "/_design/$group/_view/$name?$qs");
     }
 
+    /**
+     * Query the built-in _all_docs view.
+     *
+     * @param string $options Associative array of CouchDB view query options.
+     */
     function allDocs($options)
     {
         $qs = $this->_options_to_query_string($options);
         return $this->send("GET", $this->server->path . "/_all_docs?$qs");
     }
 
+    /**
+     * Utility function that turns an options array into CouchDB view
+     * parameter query string. Including proper quoting for *key* options.
+     *
+     * @param string $options Associative array of CouchDBview query options.
+     * @return string URL query string to be appended to a view query.
+     */
     function _options_to_query_string($options)
     {
         // TODO: keys POST

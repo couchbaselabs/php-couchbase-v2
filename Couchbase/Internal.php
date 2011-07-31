@@ -7,7 +7,13 @@
 
 class Couchbase_Internal extends Couchbase_CouchDB
 {
-    function deleteDb($name, $cb)
+    /**
+     * Deletes a database/bucket.
+     *
+     * @param string $name database/bucket name.
+     * @param Couchbase $cb Couchbase client library object.
+     */
+    function deleteDb($name, $cb = null)
     {
         $result = $this->send("DELETE", "/pools/default/buckets/$name");
         if(empty($result)) { // some error deleting, don't wait.
@@ -16,17 +22,31 @@ class Couchbase_Internal extends Couchbase_CouchDB
         return $result;
     }
 
-    function createDb($name, $cb)
+    /**
+     * Creates a database/bucket.
+     *
+     * @param string $name database/bucket name.
+     * @param Couchbase $cb Couchbase client library object.
+     */
+    function createDb($name, $cb = null)
     {
         $result = $this->send(
             "POST", "/pools/default/buckets",
             "name=$name&ramQuotaMB=100&authType=sasl&replicaNumber=0&proxyPort=11215",
             "application/x-www-form-urlencoded"
         );
-        $this->waitForBucket($cb);
+        $this->_waitForBucket($cb);
         return $result;
     }
 
+    /**
+     * Determins whether a database/bucket exists.
+     *
+     * Note for Jan: RENAME FOR CONSISTENCY YOU MORON. — Love, Jan.
+     *
+     * @param string $name database/bucket name.
+     * @return boolean Whether the database/bucket exists.
+     */
     function bucketExists($name)
     {
         $bucket_info = $this->send("GET", "/pools/default/buckets/$name");
@@ -35,10 +55,11 @@ class Couchbase_Internal extends Couchbase_CouchDB
     }
 
     /**
-      * bucket creation is async, for the time being, we need to poll until
+      * Utility function that waits for bucket creation.
+      * Bucket creation is async, for the time being, we need to poll until
       * it is there.
       */
-    function waitForBucket($cb, $resultCode = Memcached::RES_SUCCESS)
+    function _waitForBucket($cb, $resultCode = Memcached::RES_SUCCESS)
     {
         // var_dump("--waitForBucket");
         do {

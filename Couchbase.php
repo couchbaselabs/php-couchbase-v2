@@ -1,4 +1,5 @@
 <?php
+error_reporting(E_ALL | E_STRICT | E_DEPRECATED);
 /**
  * Couchbase Client
  *
@@ -119,6 +120,14 @@ class Couchbase extends Memcached
         // var_dump("--done waitForDdoc");
     }
 
+    /**
+     * Returns a `Couchbase_View` specified by design document name and view
+     * name.
+     *
+     * @param $ddoc_name Design doc name (without the leading "_design/")
+     * @param $view_name Name of the view inside the design doc
+     * @return Couchbase_View instance ready for querying
+     */
     function getView($ddoc_name, $view_name)
     {
         if(!isset($this->queries[$ddoc_name][$view_name])) {
@@ -130,6 +139,11 @@ class Couchbase extends Memcached
         return $view;
     }
 
+    /**
+     * Like `getView()` but used to access the built-in `_all_docs` view.
+     *
+     * @return Couchbase_AllDocsView
+     */
     function getAllDocsView()
     {
         $allDocsView = new Couchbase_AllDocsView;
@@ -137,6 +151,10 @@ class Couchbase extends Memcached
         return $allDocsView;
     }
 
+    /**
+     * Wrap the `touch()` method for php-memcached/libmemcached installations
+     * that do not support it (< 1.7)
+     */
     function touch($key, $expriy = 0)
     {
         if(!method_exists("Memcached", "touch")) {
@@ -147,6 +165,18 @@ class Couchbase extends Memcached
         return parent::touch($key, $expiry);
     }
 
+    /**
+     * Utility function that reads all design docs and view definitions from
+     * a bucket and makes them available for querying.
+     *
+     * Note: This happens on every instantiation of this class.
+     *       This needs to be optimized in various ways:
+     *        - Only load a view definition if asked for.
+     *        - Cache a view definition locally (file, apc etc.)
+     *          for a while to avoid even the on-demand lookups
+     *          all the time.
+     * @return void
+     */
     function _readDesignDocs()
     {
         if(!$this->couchbase->bucketExists($this->default_bucket_name)) {
@@ -156,6 +186,11 @@ class Couchbase extends Memcached
         $view = $this->getAllDocsView();
         $ddocs = $view->getResultByRange("_design/", "_design0",
             array("include_docs" => true));
+
+        if(!$ddocs || !$ddocs->rows) {
+            return;
+        }
+
         foreach($ddocs->rows AS $ddoc_row) {
             $ddoc = $ddoc_row->doc;
             $ddoc_name = str_replace("_design/", "", $ddoc->_id);

@@ -25,15 +25,62 @@ class Couchbase_AllDocsView extends Couchbase_View
     }
 }
 
+/**
+ * Access Couchbase views.
+ */
 class Couchbase_View
 {
+    /**
+     * Design Document id for the view.
+     *
+     * @todo redundant?
+     * @var string Design document id.
+     */
     var $_id;
+
+    /**
+     * Design Document revision for the view.
+     *
+     * @todo redundant?
+     * @var string Design document revision.
+     */
     var $_rev;
+
+    /**
+     * Database object instance.
+     *
+     * @var Couchbase instance to access the server.
+     */
     var $db;
+
+    /**
+     * Couchbase view definition object, designed to be turned into JSON.
+     *
+     * @var Couchbase_ViewDefinition that holds the JavaScript function code.
+     */
     var $view_definition;
+
+    /**
+     * Design doc name sans "_design/" prefix.
+     *
+     * @var string
+     */
     var $ddoc_name;
+
+    /**
+     * View name
+     *
+     * @var string View name.
+     */
     var $view_name;
 
+    /**
+     * Constructor, instantiates a new view with a design doc name and a view
+     * name.
+     *
+     * @param string $ddoc_name Design doc name.
+     * @param string $view_name View name.
+     */
     function __construct($ddoc_name, $view_name)
     {
         $this->ddoc_name = $ddoc_name;
@@ -41,6 +88,12 @@ class Couchbase_View
         $this->view_definition = new Couchbase_ViewDefinition;
     }
 
+    /**
+     * Returns a Couchbase view result.
+     *
+     * @param array $options Optional associative array of view options.
+     * @return Couchbase_ViewResult
+     */
     function getResult($options = array())
     {
         return new Couchbase_ViewResult(
@@ -48,11 +101,26 @@ class Couchbase_View
         );
     }
 
+    /**
+     * Returns a Couchbase view result that matches a give key.
+     *
+     * @param string $key Return only rows that match this key.
+     * @param array $options Optional associative array of view options.
+     * @return Couchbase_ViewResult
+     */
     function getResultByKey($key, $options = array())
     {
         return $this->getResult(array_merge($options, array("key" => $key)));
     }
 
+    /**
+     * Returns a Couchbase view result specified by a key range.
+     *
+     * @param string $start First key to match in the range.
+     * @param string $end First key out of range.
+     * @param array $options Optional associative array of view options.
+     * @return Couchbase_ViewResult
+     */
     function getResultByRange($start, $end = null, $options = array())
     {
         $key_options = $startkey_options = $endkey_options = array();
@@ -95,16 +163,33 @@ class Couchbase_View
         return($jsoned_result);
     }
 
+    /**
+     * Returns a result paginator for results of this view.
+     *
+     * @return Couchbase_ViewResultPaginator
+     */
     function getResultPaginator()
     {
         return new Couchbase_ViewResultPaginator($this);
     }
 
+    /**
+     * Set a map function for this view.
+     *
+     * @param string $code Map function code. Must currently be JavaSCript.
+     * @return void
+     */
     function setMapFunction($code)
     {
         $this->view_definition->setMapFunction($code);
     }
 
+    /**
+     * Set a reduce function for this view.
+     *
+     * @param string $code Reduce function code. Must currently be JavaSCript.
+     * @return void
+     */
     function setReduceFunction($code)
     {
         $this->view_definition->setReduceFunction($code);

@@ -5,6 +5,7 @@
  * Objects of this class represent a Couchbase query result.
  *
  * @package Couchbase
+ * @license Apache 2.0
  */
 class Couchbase_ViewResult
 {
@@ -59,7 +60,10 @@ class Couchbase_ViewResult
             $this->offset = $result->offset;
         }
 
-        $this->rows = $result->rows;
+        if(isset($result->rows)) {
+            $this->rows = $result->rows;
+        }
+
         if(isset($result->errors)) {
             $this->errors = $result->errors;
         }
