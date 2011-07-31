@@ -152,6 +152,8 @@ class Couchbase_CouchDB
      * @param string $method HTTP method, GET, PUT, POST, DELETE etc.
      * @param string $url The path component of a URL.
      * @param string $post_data Data to send with a POST or PUT request.
+     * @param string $content_type request contet-type header, defaults to
+     *               application/json.
      * @return string JSON response.
      */
     function send($method, $url, $post_data = NULL, $content_type = "application/json")

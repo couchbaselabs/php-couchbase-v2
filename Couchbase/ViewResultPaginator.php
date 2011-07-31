@@ -1,14 +1,11 @@
 <?php
 /**
- * Define a Couchbase query.
+ * Iterator class that allow paginating over a Couchbase_ViewResult.
  *
  * @package Couchbase
  * @license Apache 2.0
  */
 
-/**
- * Iterator class that allow paginating over a Couchbase_ViewResult.
- */
 class Couchbase_ViewResultPaginator implements Iterator
 {
     /**

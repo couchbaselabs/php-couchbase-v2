@@ -12,11 +12,23 @@ TODO: Add query options and different languages.
 
 class Couchbase_AllDocsView extends Couchbase_View
 {
+    /**
+     * Constructor, fake ddoc and view names
+     */
     function __construct()
     {
         parent::__construct("_builtin", "_all_docs");
     }
 
+    /**
+     * Return a Couchbase query result.
+     * 
+     * Overrides the parent's method to query `_all_docs` instead of a custom
+     * view.
+     *
+     * @param array $options Optional associative array of view options.
+     * @return Couchbase_ViewResult
+     */
     function getResult($options = array())
     {
         return new Couchbase_ViewResult(
@@ -27,6 +39,8 @@ class Couchbase_AllDocsView extends Couchbase_View
 
 /**
  * Access Couchbase views.
+ *
+ * @package Couchbase
  */
 class Couchbase_View
 {
@@ -146,6 +160,7 @@ class Couchbase_View
     /**
      * Retrieve values from cache in view result order.
      *
+     * @param array $options Optional associative array of view options.
      * @return void
      */
     function getValues($options = array())

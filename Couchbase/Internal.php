@@ -58,6 +58,8 @@ class Couchbase_Internal extends Couchbase_CouchDB
       * Utility function that waits for bucket creation.
       * Bucket creation is async, for the time being, we need to poll until
       * it is there.
+      * @param Couchbase $cb Couchbase client library object.
+      * @param constant Expected memcached result code.
       */
     function _waitForBucket($cb, $resultCode = Memcached::RES_SUCCESS)
     {

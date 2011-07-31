@@ -70,9 +70,11 @@ class Couchbase extends Memcached
     /**
      * Add a server to the connection pool.
      *
-     * @param string $host hostname or IP address
-     * @param int $port TCP port number
-     * @param int $weight relative wright for being selected from a pool
+     * @param string $host Couchbase hostname or IP address.
+     * @param int $port TCP port number for Membase API.
+     * @param int $couchport TCP port number for Couch API.
+     * @param string $internal_host Couchbase admin API host name or IP.
+     * @param $internal_port Couchbase admin API TCP port number.
      * @return bool
      */
     function addCouchbaseServer($host, $port = 11211, $couchport = 5984,
@@ -92,8 +94,7 @@ class Couchbase extends Memcached
     /**
      * Helper method to allow defining a new view programatically.
      *
-     * @param string $name View name.
-     * @param Couchbase_ViewDefinition $query_definition View definition.
+     * @param Couchbase_ViewDefinition $view_definition View definition.
      * @return bool
      */
     function addView($view_definition)
@@ -154,6 +155,10 @@ class Couchbase extends Memcached
     /**
      * Wrap the `touch()` method for php-memcached/libmemcached installations
      * that do not support it (< 1.7)
+     *
+     * @param string $key Key
+     * @param integer $expriy Number of seconds until the item expires.
+     * @return boolean Success or not.
      */
     function touch($key, $expriy = 0)
     {

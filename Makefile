@@ -10,11 +10,10 @@ cover:
 	open cover/index.html
 
 doc:
-	mkdir doc
+	mkdir -p doc
 	docblox -d . -t doc
 
 clean:
 	git clean -fdx
-
 
 .PHONY: test cover doc

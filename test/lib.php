@@ -1,4 +1,10 @@
 <?php
+/**
+ * Couchbase test utility library.
+ *
+ * @package Couchbase
+ */
+
 class Couchbase_Test_Lib
 {
     function __construct($couchbase)
