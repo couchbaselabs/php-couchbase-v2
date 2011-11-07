@@ -28,7 +28,7 @@ class CouchbaseClusterTest extends PHPUnit_Framework_TestCase
     function kill_node($node)
     {
         $cmd = "kill `ps ax | grep beam | grep n_$node | awk '{print $1}'`";
-        `$cmd`;
+        shell_exec($cmd);
     }
 
     function test_basic_query()
