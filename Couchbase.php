@@ -237,4 +237,26 @@ class Couchbase extends Memcached
         $ddoc_json = json_encode($ddoc);
         $this->couchdb->saveDoc($ddoc_json);
     }
+
+    /**
+     * Register Autoloader for Couchbase PHP SDK
+     *
+     * @return void
+     */
+    static public function registerAutoload()
+    {
+        spl_autoload_register(array("Couchbase", "autoload"));
+    }
+
+    /**
+     * Autoloader function
+     *
+     * @param string $class
+     */
+    static public function autoload($class)
+    {
+        if (strpos($class, "Couchbase") === 0) {
+            require_once dirname(__FILE__) . "/" . str_replace("_", "/", $class) . ".php";
+        }
+    }
 }
