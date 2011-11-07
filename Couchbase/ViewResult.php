@@ -1,4 +1,5 @@
 <?php
+
 /**
  * A Couchbase query result.
  *
@@ -6,6 +7,10 @@
  *
  * @package Couchbase
  * @license Apache 2.0
+ * @property-read int $total_rows
+ * @property-read int $offset
+ * @property-read array $rows
+ * @property-read array $errors
  */
 class Couchbase_ViewResult
 {
@@ -17,7 +22,7 @@ class Couchbase_ViewResult
      *
      * @var int Total number of rows in a query result.
      */
-    var $total_rows = 0;
+    protected $total_rows = 0;
 
     /**
      * Number indicating how many rows are skipped from the beginning of the
@@ -26,7 +31,7 @@ class Couchbase_ViewResult
      *
      * @var int Number of rows skipped.
      */
-    var $offset = 0;
+    protected $offset = 0;
 
     /**
      * Array of result rows. This array contains all query results in an
@@ -34,38 +39,44 @@ class Couchbase_ViewResult
      *
      * @var array result rows.
      */
-    var $rows = array();
+    public $rows = array();
 
     /**
      * Array of error rows. This array contains all errors from the query.
      * Or only one, if the on_error=stop option is used.
      * It is `null` when there are no errors.
      */
-     var $errors = null;
+    protected $errors = null;
 
     /**
      * Constrictor, takes a CouchDB view result JSON string as a parameter.
      *
      * @param string $result_json CouchDB view result.
      */
-    function __construct($result_json)
+    public function __construct($result_json)
     {
         $result = json_decode($result_json);
 
-        if(isset($result->total_rows)) {
+        if (isset($result->total_rows)) {
             $this->total_rows = $result->total_rows;
         }
 
-        if(isset($result->offset)) {
+        if (isset($result->offset)) {
             $this->offset = $result->offset;
         }
 
-        if(isset($result->rows)) {
+        if (isset($result->rows)) {
             $this->rows = $result->rows;
         }
 
-        if(isset($result->errors)) {
+        if (isset($result->errors)) {
             $this->errors = $result->errors;
         }
     }
+
+    public function __get($name)
+    {
+        return $this->$name;
+    }
+
 }

@@ -13,7 +13,7 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
     function setUp($flush = true)
     {
         $this->cb = new Couchbase;
-        $this->cb->addCouchbaseServer("localhost", 12001, 9500, "localhost", 9000);
+        $this->cb->addCouchbaseServer($GLOBALS['COUCHBASE_SERVER'], $GLOBALS['COUCHBASE_MEMCACHE_PORT'], $GLOBALS['COUCHBASE_COUCHDB_PORT'], $GLOBALS['COUCHBASE_INTERNAL_HOST'], $GLOBALS['COUCHBASE_INTERNAL_PORT']);
         if($flush) {
             $this->cb->flush();
             // $this->cb->couchbase->deleteDb("default", $this->cb);

@@ -1,26 +1,27 @@
 <?php
+
 /**
  * Iterator class that allow paginating over a Couchbase_ViewResult.
  *
  * @package Couchbase
  * @license Apache 2.0
  */
-
 class Couchbase_ViewResultPaginator implements Iterator
 {
+
     /**
      * Couchbase_View instance to paginate over. This is our data source.
      *
      * @var Couchbase_View Data source
      */
-    var $view;
+    protected $view;
 
     /**
      * Rows per page.
      *
      * @var integer Rows per page.
      */
-    var $rowsPerPage;
+    protected $rowsPerPage;
 
     /**
      * Page key. Each page is associated with a page key that in turn is
@@ -29,28 +30,28 @@ class Couchbase_ViewResultPaginator implements Iterator
      *
      * @var array Row key and docid `array($key, $docid)`.
      */
-    var $page_key = null;
+    protected $page_key = null;
 
     /**
      * The next page's key, needed for iteration.
      *
      * @var array Row key and docid `array($key, $docid)`.
      */
-    var $next_page_key= null;
+    protected $next_page_key = null;
 
     /**
      * View query options.
      *
      * @var array View query options.
      */
-    var $options = array();
+    protected $options = array();
 
     /**
      * Constructor.
      *
      * @param Couchbase_View $view Data source.
      */
-    function __construct($view)
+    public function __construct($view)
     {
         $this->view = $view;
     }
@@ -61,7 +62,8 @@ class Couchbase_ViewResultPaginator implements Iterator
      * @param integer $rowsPerPage 
      * @return void
      */
-    function setRowsPerPage($rowsPerPage) {
+    public function setRowsPerPage($rowsPerPage)
+    {
         $this->rowsPerPage = $rowsPerPage;
     }
 
@@ -71,7 +73,8 @@ class Couchbase_ViewResultPaginator implements Iterator
      * @param array $pageKey Page key.
      * @return void
      */
-    function setPageKey($pageKey) {
+    public function setPageKey($pageKey)
+    {
         $this->page_key = $pageKey;
     }
 
@@ -81,7 +84,8 @@ class Couchbase_ViewResultPaginator implements Iterator
      * @param array $options View query options.
      * @return void
      */
-    function setOptions($options) {
+    public function setOptions($options)
+    {
         $this->options = $options;
     }
 
@@ -90,7 +94,7 @@ class Couchbase_ViewResultPaginator implements Iterator
      *
      * @return void
      */
-    function rewind()
+    public function rewind()
     {
         $this->page_key = null;
         $this->current();
@@ -101,20 +105,16 @@ class Couchbase_ViewResultPaginator implements Iterator
      *
      * @return Couchbase_ViewResult Result page.
      */
-    function current()
+    public function current()
     {
-        $options = array_merge($this->options,
-            array("limit" => $this->rowsPerPage + 1));
+        $options = array_merge($this->options, array("limit" => $this->rowsPerPage + 1));
         $result = $this->view->getResultByRange(
-            $this->page_key,
-            null,
-            $options
+                $this->page_key, null, $options
         );
         // TODO: descending, flip start/end
-
         // if there is an extra row at the end, grab it's key and docid and
         // store them as the next_page_key
-        if(isset($result->rows[$this->rowsPerPage]) && $result->rows[$this->rowsPerPage]->key) {
+        if (isset($result->rows[$this->rowsPerPage]) && $result->rows[$this->rowsPerPage]->key) {
             $row = $result->rows[$this->rowsPerPage];
             $this->next_page_key = array($row->key, $row->id);
         } else {
@@ -130,7 +130,7 @@ class Couchbase_ViewResultPaginator implements Iterator
      *
      * @return array Page key.
      */
-    function key()
+    public function key()
     {
         return $this->page_key;
     }
@@ -140,7 +140,7 @@ class Couchbase_ViewResultPaginator implements Iterator
      *
      * @return void
      */
-    function next()
+    public function next()
     {
         $this->page_key = $this->next_page_key;
         $this->next_page_key = null;
@@ -152,8 +152,9 @@ class Couchbase_ViewResultPaginator implements Iterator
      *
      * @return void
      */
-    function valid()
+    public function valid()
     {
         return $this->page_key !== false;
     }
+
 }

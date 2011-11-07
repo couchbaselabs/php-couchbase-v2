@@ -6,13 +6,12 @@
  */
 class Couchbase_CouchDB
 {
-
     /**
      * CouchDB server url, parsed into an object.
      *
      * @var URL CouchDB Server URL
      */
-    var $server = null;
+    protected $server = null;
 
     /**
      * Constructor, takes a URL spcifying the CouchDB server and database.
@@ -20,7 +19,7 @@ class Couchbase_CouchDB
      * @param string $dsn URL to a CouchDB server and database
      * @example http://localhost:5984/database
      */
-    function __construct($dsn)
+    public function __construct($dsn)
     {
         $this->server = new stdClass;
         $this->dsn = $dsn;
@@ -35,7 +34,7 @@ class Couchbase_CouchDB
      * @param string $name database name, must match [a-z][a-z0-9$()/_-].
      * @return string JSON success or error message.
      */
-    function createDb($name)
+    public function createDb($name)
     {
         return $this->send("PUT", $this->server->path);
     }
@@ -46,7 +45,7 @@ class Couchbase_CouchDB
      * @param string $name database name.
      * @return string JSON success or error message.
      */
-    function deleteDb($name)
+    public function deleteDb($name)
     {
         return $this->send("DELETE", $this->server->path);
     }
@@ -57,7 +56,7 @@ class Couchbase_CouchDB
      * @param string $doc JSON representation of a document.
      * @return string JSON success or error message.
      */
-    function saveDoc($doc)
+    public function saveDoc($doc)
     {
         return $this->send("POST", $this->server->path, $doc);
     }
@@ -69,7 +68,7 @@ class Couchbase_CouchDB
      * @param string $id The documents's id.
      * @return string document or error message as a JSON string.
      */
-    function open($id)
+    public function open($id)
     {
         return $this->send("GET", $this->server->path . "/$id");
     }
@@ -82,7 +81,7 @@ class Couchbase_CouchDB
      * @param string $options Associative array of CouchDB view query options.
      * @return string JSON result set of a CouchDB view Query.
      */
-    function view($group, $name, $options = array())
+    public function view($group, $name, $options = array())
     {
         $qs = $this->_options_to_query_string($options);
         return $this->send("GET",
@@ -94,7 +93,7 @@ class Couchbase_CouchDB
      *
      * @param string $options Associative array of CouchDB view query options.
      */
-    function allDocs($options)
+    public function allDocs($options)
     {
         $qs = $this->_options_to_query_string($options);
         return $this->send("GET", $this->server->path . "/_all_docs?$qs");
@@ -107,7 +106,7 @@ class Couchbase_CouchDB
      * @param string $options Associative array of CouchDBview query options.
      * @return string URL query string to be appended to a view query.
      */
-    function _options_to_query_string($options)
+    private function _options_to_query_string($options)
     {
         // TODO: keys POST
         $qs = array();
@@ -156,7 +155,7 @@ class Couchbase_CouchDB
      *               application/json.
      * @return string JSON response.
      */
-    function send($method, $url, $post_data = NULL, $content_type = "application/json")
+    protected function send($method, $url, $post_data = NULL, $content_type = "application/json")
     {
         $s = fsockopen(
             $this->server->host,
@@ -187,7 +186,10 @@ class Couchbase_CouchDB
         // var_dump($request);
         // var_dump("-------------");
         fwrite($s, $request); 
-        $response = ""; 
+        $response = "";
+
+        while ( ( ( $line = fgets( $s ) ) !== false ) &&
+                ( ( $lineContent = rtrim( $line ) ) === '' ) );
 
         while(!feof($s)) {
             $response .= fgets($s);
@@ -205,6 +207,7 @@ class Couchbase_CouchDB
         }
         // var_dump($response);
         // var_dump("--------------------------------");
+
         return $this->body;
     }
 }

@@ -1,19 +1,18 @@
 <?php
 require_once "Couchbase.php";
 require_once "test/lib.php";
-require_once "PHPUnit/Framework/TestCase.php";
 
 /**
  * Couchbase test class for PHPUnit.
  *
  * @package Couchbase
  */
-class CouchbaseTest extends PHPUnit_Framework_TestCase
+class CouchbaseClusterTest extends PHPUnit_Framework_TestCase
 {
     function setUp()
     {
         $this->cb = new Couchbase;
-        $this->cb->addCouchbaseServer("localhost", 12001, 9500);
+        $this->cb->addCouchbaseServer($GLOBALS['COUCHBASE_SERVER'], $GLOBALS['COUCHBASE_MEMCACHE_PORT'], $GLOBALS['COUCHBASE_COUCHDB_PORT'], $GLOBALS['COUCHBASE_INTERNAL_HOST'], $GLOBALS['COUCHBASE_INTERNAL_PORT']);
         $this->cb->flush();
         // $this->cb->couchbase->deleteDb("default", $this->cb);
         $this->cb->couchbase->createDb("default", $this->cb);
@@ -54,9 +53,9 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
         $this->cb->set("a", '{"a":1}');
         $this->cb->set("b", '{"a":2}');
 
-        $view = new Couchbase_View;
+        $view = new Couchbase_View("default", "cluster");
         $view->setMapFunction("function(doc) { emit(doc.a, 1); }");
-        $this->cb->addView("default", "cluster", $view);
+        $this->cb->addView($view);
 
         sleep(10);
 
@@ -73,9 +72,9 @@ class CouchbaseTest extends PHPUnit_Framework_TestCase
         $this->cb->set("a", '{"a":1}');
         $this->cb->set("b", '{"a":2}');
 
-        $view = new Couchbase_View;
+        $view = new Couchbase_View("default", "cluster");
         $view->setMapFunction("function(doc) { emit(doc.a, 1); }");
-        $this->cb->addView("default", "cluster", $view);
+        $this->cb->addView($view);
 
         sleep(10);
         $this->kill_node(1);

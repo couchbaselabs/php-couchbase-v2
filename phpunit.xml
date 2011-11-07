@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    backupGlobals               = "false"
+    backupStaticAttributes      = "false"
+    colors                      = "true"
+    convertErrorsToExceptions   = "true"
+    convertNoticesToExceptions  = "true"
+    convertWarningsToExceptions = "true"
+    processIsolation            = "false"
+    stopOnFailure               = "false"
+    syntaxCheck                 = "false"
+    bootstrap                   = "test/bootstrap.php" >
+
+    <testsuites>
+        <testsuite name="Couchbase PHP SDK Testsuite">
+            <directory>test</directory>
+        </testsuite>
+    </testsuites>
+
+    <php>
+        <var name="COUCHBASE_SERVER" value="localhost" />
+        <var name="COUCHBASE_MEMCACHE_PORT" value="11211" />
+        <var name="COUCHBASE_COUCHDB_PORT" value="5984" />
+        <var name="COUCHBASE_INTERNAL_HOST" />
+        <var name="COUCHBASE_INTERNAL_PORT" value="8091" />
+    </php>
+
+    <filter>
+        <whitelist>
+            <file>Couchbase.php</file>
+            <directory>Couchbase</directory>
+        </whitelist>
+    </filter>
+
+</phpunit>
