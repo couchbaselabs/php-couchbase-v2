@@ -20,6 +20,8 @@ Open Source after all.
     <?php
     // setup
     require("Couchbase.php");
+    Couchbase::registerAutoload();
+
     $cb = new Couchbase;
     $cb->addCouchbaseServer("localhost"); // connects to Couchbase ports 11211
                                           // and 8091 by default.
@@ -345,7 +347,6 @@ can be used:
  - integrate proper(!) HTTP client
  - detect new couch-api endpoints dynamically
  - local-cache server design docs
- - make E_ALL | E_STRICT | E_DEPRECATED compatible
  - add proper credits
 
 ## Credits

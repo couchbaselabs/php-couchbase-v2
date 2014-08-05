@@ -1,11 +1,18 @@
 <?php
-/**
+/*
  * Define a Couchbase query.
  *
  * @package Couchbase
  * @license Apache 2.0
  */
 
+/**
+ * View definition
+ *
+ * @property-read string $map
+ * @property-read string $reduce
+ * @property-read array $options
+ */
 class Couchbase_ViewDefinition
 {
     /**
@@ -13,21 +20,21 @@ class Couchbase_ViewDefinition
      *
      * @var string JavaScript map function.
      */
-    var $map = "";
+    protected $map = "";
 
     /**
      * Source code for reduce function. Currently must be JavaScript.
      *
      * @var string JavaScript reduce function.
      */
-    var $reduce = null;
+    protected $reduce = null;
 
     /**
      * View definition options.
      *
      * @var array View definition options.
      */
-    var $options = array();
+    public $options = array();
 
     /**
      * Add map function code to the query definition.
@@ -35,7 +42,7 @@ class Couchbase_ViewDefinition
      * @param string $code map function code.
      * @return void
      */
-    function setMapFunction($code)
+    public function setMapFunction($code)
     {
         $this->map = $code;
     }
@@ -46,8 +53,13 @@ class Couchbase_ViewDefinition
      * @param string $code reduce function code
      * @return void
      */
-    function setReduceFunction($code)
+    public function setReduceFunction($code)
     {
         $this->reduce = $code;
+    }
+
+    public function __get($name)
+    {
+        return $this->$name;
     }
 }

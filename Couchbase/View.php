@@ -10,37 +10,12 @@
 TODO: Add query options and different languages.
 */
 
-class Couchbase_AllDocsView extends Couchbase_View
-{
-    /**
-     * Constructor, fake ddoc and view names
-     */
-    function __construct()
-    {
-        parent::__construct("_builtin", "_all_docs");
-    }
-
-    /**
-     * Return a Couchbase query result.
-     * 
-     * Overrides the parent's method to query `_all_docs` instead of a custom
-     * view.
-     *
-     * @param array $options Optional associative array of view options.
-     * @return Couchbase_ViewResult
-     */
-    function getResult($options = array())
-    {
-        return new Couchbase_ViewResult(
-            $this->db->couchdb->allDocs($options)
-        );
-    }
-}
-
 /**
  * Access Couchbase views.
  *
  * @package Couchbase
+ * @property-read string $ddoc_name
+ * @property-read string $name
  */
 class Couchbase_View
 {
@@ -50,7 +25,7 @@ class Couchbase_View
      * @todo redundant?
      * @var string Design document id.
      */
-    var $_id;
+    protected $_id;
 
     /**
      * Design Document revision for the view.
@@ -58,35 +33,35 @@ class Couchbase_View
      * @todo redundant?
      * @var string Design document revision.
      */
-    var $_rev;
+    protected $_rev;
 
     /**
      * Database object instance.
      *
      * @var Couchbase instance to access the server.
      */
-    var $db;
+    protected $db;
 
     /**
      * Couchbase view definition object, designed to be turned into JSON.
      *
      * @var Couchbase_ViewDefinition that holds the JavaScript function code.
      */
-    var $view_definition;
+    protected $view_definition;
 
     /**
      * Design doc name sans "_design/" prefix.
      *
      * @var string
      */
-    var $ddoc_name;
+    protected $ddoc_name;
 
     /**
      * View name
      *
      * @var string View name.
      */
-    var $view_name;
+    protected $name;
 
     /**
      * Constructor, instantiates a new view with a design doc name and a view
@@ -95,11 +70,21 @@ class Couchbase_View
      * @param string $ddoc_name Design doc name.
      * @param string $view_name View name.
      */
-    function __construct($ddoc_name, $view_name)
+    public function __construct($ddoc_name, $view_name, Couchbase $db = null)
     {
         $this->ddoc_name = $ddoc_name;
         $this->name = $view_name;
         $this->view_definition = new Couchbase_ViewDefinition;
+        $this->db = $db;
+    }
+
+    /**
+     * @param Couchbase $db
+     * @return void
+     */
+    public function setDatabase(Couchbase $db)
+    {
+        $this->db = $db;
     }
 
     /**
@@ -208,6 +193,11 @@ class Couchbase_View
     function setReduceFunction($code)
     {
         $this->view_definition->setReduceFunction($code);
+    }
+
+    public function __get($name)
+    {
+        return $this->$name;
     }
 }
 

@@ -1,5 +1,5 @@
 <?php
-error_reporting(E_ALL | E_STRICT | E_DEPRECATED);
+
 /**
  * Couchbase Client
  *
@@ -13,16 +13,6 @@ error_reporting(E_ALL | E_STRICT | E_DEPRECATED);
  * @package Couchbase
  * @license Apache 2.0, See LICENSE file.
  */
-
-/**
- * Require dependent classes
- */
-require("Couchbase/CouchDB.php");
-require("Couchbase/Internal.php");
-require("Couchbase/View.php");
-require("Couchbase/ViewDefinition.php");
-require("Couchbase/ViewResult.php");
-require("Couchbase/ViewResultPaginator.php");
 
 /**
  * Exception that gets thrown when the memcached extension is not available
@@ -45,27 +35,26 @@ if(!extension_loaded("memcached")) {
  */
 class Couchbase extends Memcached
 {
-
     /**
      * List of queries defined for this bucket/database keyed by `$group` and
      * `$name`.
      * @var array list of queries
      */
-    var $queries = array();
+    protected $queries = null;
 
     /**
      * Hostname and port for the CouchDB API inside Couchbase.
      *
      * @var array
      */
-    var $query_server = array();
+    protected $query_server = array();
 
     /**
      * Default bucket name for the Couchbase Cluster.
      *
      * @var string bucket name
      */
-    var $default_bucket_name = "default";
+    protected $default_bucket_name = "default";
 
     /**
      * Add a server to the connection pool.
@@ -77,28 +66,29 @@ class Couchbase extends Memcached
      * @param $internal_port Couchbase admin API TCP port number.
      * @return bool
      */
-    function addCouchbaseServer($host, $port = 11211, $couchport = 5984,
+    public function addCouchbaseServer($host, $port = 11211, $couchport = 5984,
         /* private*/ $internal_host = null, $internal_port = 8091 /* private end */)
     {
-        if($internal_host === null) {
+        if(empty($internal_host)) {
             $internal_host = $host;
         }
 
         $this->query_server = array("host" => $host, "port" => $couchport);
         $this->couchdb = new Couchbase_CouchDB("http://$host:$couchport/{$this->default_bucket_name}");
         $this->couchbase = new Couchbase_Internal("http://$internal_host:$internal_port/");
-        $this->_readDesignDocs();
         return parent::addServer($host, $port);
     }
 
     /**
      * Helper method to allow defining a new view programatically.
      *
-     * @param Couchbase_ViewDefinition $view_definition View definition.
+     * @param Couchbase_View $view_definition View definition.
      * @return bool
      */
-    function addView($view_definition)
+    public function addView(Couchbase_View $view_definition)
     {
+        $this->_readDesignDocs();
+
         $this->queries[$view_definition->ddoc_name]
             [$view_definition->name] = $view_definition;
         $this->_updateDesignDocument($view_definition->ddoc_name);
@@ -106,19 +96,15 @@ class Couchbase extends Memcached
         return true;
     }
 
-    // wait for ddocs to be all synced to all buckets and whatnot
-    // the server should do the wait for me or send me a notification
-    function _waitForDesignDocUglyHack($ddoc_name)
+    /**
+     * @todo: Remove this hack?
+     *
+     * wait for ddocs to be all synced to all buckets and whatnot
+     * the server should do the wait for me or send me a notification
+     */
+    private function _waitForDesignDocUglyHack($ddoc_name)
     {
-        // var_dump("--waitForDdoc");
         sleep(4);
-        // do {
-        //     usleep(300);
-        //     $result = $this->couchdb->view("default", $ddoc_name);
-        //     var_dump($result);
-        //     $json_result = json_decode($result);
-        // } while(isset($json_result->error) && ($json_result->error == "not_found"));
-        // var_dump("--done waitForDdoc");
     }
 
     /**
@@ -129,14 +115,16 @@ class Couchbase extends Memcached
      * @param $view_name Name of the view inside the design doc
      * @return Couchbase_View instance ready for querying
      */
-    function getView($ddoc_name, $view_name)
+    public function getView($ddoc_name, $view_name)
     {
+        $this->_readDesignDocs();
+
         if(!isset($this->queries[$ddoc_name][$view_name])) {
             return false;
         }
 
         $view = $this->queries[$ddoc_name][$view_name];
-        $view->db = $this;
+        $view->setDatabase($this);
         return $view;
     }
 
@@ -145,11 +133,9 @@ class Couchbase extends Memcached
      *
      * @return Couchbase_AllDocsView
      */
-    function getAllDocsView()
+    public function getAllDocsView()
     {
-        $allDocsView = new Couchbase_AllDocsView;
-        $allDocsView->db = $this;
-        return $allDocsView;
+        return new Couchbase_AllDocsView($this);
     }
 
     /**
@@ -160,7 +146,7 @@ class Couchbase extends Memcached
      * @param integer $expriy Number of seconds until the item expires.
      * @return boolean Success or not.
      */
-    function touch($key, $expriy = 0)
+    public function touch($key, $expriy = 0)
     {
         if(!method_exists("Memcached", "touch")) {
             trigger_error(E_WARNING,
@@ -182,8 +168,12 @@ class Couchbase extends Memcached
      *          all the time.
      * @return void
      */
-    function _readDesignDocs()
+    private function _readDesignDocs()
     {
+        if ($this->queries !== null) {
+            return;
+        }
+
         if(!$this->couchbase->bucketExists($this->default_bucket_name)) {
             return;
         }
@@ -196,6 +186,7 @@ class Couchbase extends Memcached
             return;
         }
 
+        $this->queries = array();
         foreach($ddocs->rows AS $ddoc_row) {
             $ddoc = $ddoc_row->doc;
             $ddoc_name = str_replace("_design/", "", $ddoc->_id);
@@ -214,7 +205,7 @@ class Couchbase extends Memcached
      * @param string $ddoc_name design doc to update.
      * @return void
      */
-    function _updateDesignDocument($ddoc_name)
+    private function _updateDesignDocument($ddoc_name)
     {
         $ddoc_definition = $this->queries[$ddoc_name];
         $ddoc = new stdClass;
@@ -245,5 +236,27 @@ class Couchbase extends Memcached
 
         $ddoc_json = json_encode($ddoc);
         $this->couchdb->saveDoc($ddoc_json);
+    }
+
+    /**
+     * Register Autoloader for Couchbase PHP SDK
+     *
+     * @return void
+     */
+    static public function registerAutoload()
+    {
+        spl_autoload_register(array("Couchbase", "autoload"));
+    }
+
+    /**
+     * Autoloader function
+     *
+     * @param string $class
+     */
+    static public function autoload($class)
+    {
+        if (strpos($class, "Couchbase") === 0) {
+            require_once dirname(__FILE__) . "/" . str_replace("_", "/", $class) . ".php";
+        }
     }
 }

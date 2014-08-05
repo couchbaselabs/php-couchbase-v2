@@ -13,7 +13,7 @@ class Couchbase_Internal extends Couchbase_CouchDB
      * @param string $name database/bucket name.
      * @param Couchbase $cb Couchbase client library object.
      */
-    function deleteDb($name, $cb = null)
+    public function deleteDb($name, $cb = null)
     {
         $result = $this->send("DELETE", "/pools/default/buckets/$name");
         if(empty($result)) { // some error deleting, don't wait.
@@ -28,7 +28,7 @@ class Couchbase_Internal extends Couchbase_CouchDB
      * @param string $name database/bucket name.
      * @param Couchbase $cb Couchbase client library object.
      */
-    function createDb($name, $cb = null)
+    public function createDb($name, $cb = null)
     {
         $result = $this->send(
             "POST", "/pools/default/buckets",
@@ -47,7 +47,7 @@ class Couchbase_Internal extends Couchbase_CouchDB
      * @param string $name database/bucket name.
      * @return boolean Whether the database/bucket exists.
      */
-    function bucketExists($name)
+    public function bucketExists($name)
     {
         $bucket_info = $this->send("GET", "/pools/default/buckets/$name");
         return $bucket_info != '["Unexpected server error, request logged."]'
@@ -61,7 +61,7 @@ class Couchbase_Internal extends Couchbase_CouchDB
       * @param Couchbase $cb Couchbase client library object.
       * @param constant Expected memcached result code.
       */
-    function _waitForBucket($cb, $resultCode = Memcached::RES_SUCCESS)
+    private function _waitForBucket($cb, $resultCode = Memcached::RES_SUCCESS)
     {
         // var_dump("--waitForBucket");
         do {
